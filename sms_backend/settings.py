@@ -45,13 +45,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'sms_backend.urls'
 
+import os
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            # This is where Django looks for templates like index.html
-            os.path.join(BASE_DIR, 'Frontend'),
-        ],
+        'DIRS': [BASE_DIR], # Change this line to point to BASE_DIR
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -63,7 +62,6 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'sms_backend.wsgi.application'
 
 
