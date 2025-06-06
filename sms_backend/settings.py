@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # Use environment variable for production SECRET_KEY for security.
 # Provide a dummy key for local development.
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-**************************************************')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'slm$kz=tkjmztcjtke&vqh0-4)-@=$k57#oeaq@^r5sui)e%wa')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -28,7 +28,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 # If DEBUG is True, allow all for convenience (be careful in production)
 if DEBUG:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['.onrender.com']
 
 
 # Application definition
