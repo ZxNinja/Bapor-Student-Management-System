@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+venv/
+*.env
+.idea/  # PyCharm specific
+
+# Django specific
+db.sqlite3
+/media/
+/static_collected/
+*.log
+*.pot
+
+# Operating System files
+.DS_Store
+.localized
+Thumbs.db
