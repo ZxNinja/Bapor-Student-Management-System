@@ -13,13 +13,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'slm$kz=tkjmztcjtke&vqh0-4)-@=$
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
 # Allowed hosts for your Django application.
-# IMPORTANT: This list is now hardcoded.
-# If your Render domain or other allowed hosts change, you must update this file.
-# For production, replace '.onrender.com' with your exact Render domain
-# (e.g., 'student-system-api-ciez.onrender.com') for stronger security,
-# or keep '.onrender.com' to allow all subdomains of Render.
-# For local development, '127.0.0.1' and 'localhost' are implicitly allowed by Django if DEBUG is True.
-ALLOWED_HOSTS = ['.onrender.com'] # You can change this to 'student-system-api-ciez.onrender.com' if preferred
+# IMPORTANT: For debugging the 400 error, we're temporarily using ['*'].
+# YOU MUST CHANGE THIS BACK TO A SPECIFIC DOMAIN(S) AFTER DEBUGGING!
+ALLOWED_HOSTS = ['*'] # TEMPORARY: This will allow any host for now.
 
 
 # Application definition
