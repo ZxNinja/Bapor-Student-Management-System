@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,10 +6,194 @@
     <title>Student Management System</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link to external CSS file -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for specific elements and overrides */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .header {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-button.active {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: white;
+        }
+        .tab-button:not(.active):hover {
+            background-color: #e0e7ff; /* Indigo 100 */
+            color: #4f46e5;
+        }
+        .form-section {
+            display: none; /* Hidden by default */
+        }
+        .form-section.active {
+            display: block; /* Shown when active */
+        }
+        .input-field {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db; /* Gray 300 */
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width */
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo 500 */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Indigo 500 with opacity */
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* Indigo 700 */
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #e0e7ff; /* Indigo 100 */
+            color: #4f46e5;
+        }
+        .btn-secondary:hover {
+            background-color: #c7d2fe; /* Indigo 200 */
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background-color: #ef4444; /* Red 500 */
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626; /* Red 600 */
+            transform: translateY(-1px);
+        }
+        .table-header {
+            background-color: #e0e7ff; /* Indigo 100 */
+            color: #4f46e5;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+        }
+        .table-row:nth-child(even) {
+            background-color: #eff6ff; /* Blue 50 */
+        }
+        .table-cell {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb; /* Gray 200 */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            position: relative;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none; /* Hidden by default */
+            z-index: 1000;
+        }
+        .message-box.error {
+            background-color: #f44336; /* Red */
+        }
+        /* Specific styles for the student detail modal */
+        #studentDetailModal .modal-content {
+            max-width: 800px; /* Wider for details */
+            text-align: left;
+        }
+        #studentDetailModal h3 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 1rem;
+            color: #4f46e5; /* Indigo 600 */
+        }
+        #studentDetailModal .detail-item {
+            margin-bottom: 0.75rem;
+        }
+        #studentDetailModal .detail-label {
+            font-weight: 500; /* font-medium */
+            color: #4a5568; /* Gray 700 */
+            width: 120px; /* Fixed width for labels */
+            display: inline-block;
+        }
+        #studentDetailModal .detail-value {
+            color: #2d3748; /* Gray 800 */
+        }
+        #studentDetailModal .grades-table-container {
+            margin-top: 1.5rem;
+            max-height: 300px; /* Fixed height for scrollable grades table */
+            overflow-y: auto;
+            border: 1px solid #e2e8f0; /* Gray 300 */
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="container">
@@ -30,7 +213,7 @@
         <div id="messageBox" class="message-box"></div>
 
         <!-- Hidden input for CSRF token -->
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}">
 
         <!-- Students Section -->
         <section id="students" class="form-section active">
@@ -75,7 +258,7 @@
                             <th class="table-header">Email</th>
                             <th class="table-header">DOB</th>
                             <th class="table-header">Enrolled On</th>
-                            <th class="table-header w-32">Actions</th>
+                            <th class="table-header w-48">Actions</th> <!-- Increased width for new button -->
                         </tr>
                     </thead>
                     <tbody id="studentList">
@@ -213,9 +396,630 @@
             </div>
         </div>
 
+        <!-- Student Details Modal (New) -->
+        <div id="studentDetailModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="closeStudentDetailModal()">&times;</span>
+                <h3 id="studentDetailName" class="text-2xl font-semibold mb-4"></h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 mb-6 text-left">
+                    <div class="detail-item"><span class="detail-label">Student ID:</span> <span id="detail_student_id" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Email:</span> <span id="detail_email" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Date of Birth:</span> <span id="detail_dob" class="detail-value"></span></div>
+                    <div class="detail-item"><span class="detail-label">Enrolled On:</span> <span id="detail_enrollment_date" class="detail-value"></span></div>
+                </div>
+
+                <h4 class="text-xl font-semibold text-indigo-700 mb-3">Grades and Subjects</h4>
+                <div class="grades-table-container">
+                    <table class="min-w-full bg-white rounded-lg shadow-sm overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="table-header py-2 px-3 text-sm">Subject</th>
+                                <th class="table-header py-2 px-3 text-sm">Type</th>
+                                <th class="table-header py-2 px-3 text-sm">Score</th>
+                                <th class="table-header py-2 px-3 text-sm">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentGradesList">
+                            <!-- Grades for the specific student will be injected here -->
+                            <tr>
+                                <td colspan="4" class="text-center py-4 table-cell text-gray-500">Loading grades...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Link to external JavaScript file -->
-    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        // Base URL for your Django API (ensure it matches your Django server address)
+        const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+        /**
+         * Helper function to get the CSRF token from the DOM.
+         * Django automatically embeds this in the template if the csrf_token tag is used.
+         */
+        function getCsrfToken() {
+            const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+            return csrfInput ? csrfInput.value : ''; // Return empty string if not found, let Django handle validation
+        }
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a temporary message box for notifications.
+         * @param {string} message - The message to display.
+         * @param {boolean} isError - True if it's an error message, false for success.
+         */
+        function showMessageBox(message, isError = false) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'message-box'; // Reset classes
+            if (isError) {
+                messageBox.classList.add('error');
+            }
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+
+        /**
+         * Fetches data from a given API endpoint.
+         * @param {string} endpoint - The API endpoint (e.g., '/students/').
+         * @returns {Promise<Array>} - A promise that resolves to an array of data.
+         */
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP error! Status: ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showMessageBox(`Error fetching data: ${error.message}`, true);
+                return []; // Return empty array on error
+            }
+        }
+
+        /**
+         * Sends data to a given API endpoint (POST/PUT).
+         * Includes CSRF token for non-GET requests.
+         * @param {string} endpoint - The API endpoint.
+         * @param {string} method - HTTP method ('POST', 'PUT', 'PATCH').
+         * @param {Object} data - The data to send.
+         * @returns {Promise<Object>} - A promise that resolves to the response data.
+         */
+        async function sendData(endpoint, method, data) {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+
+            // Add CSRF token for unsafe methods (POST, PUT, PATCH, DELETE)
+            // Django's CSRF protection is primarily for forms, but good practice for AJAX
+            if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
+                headers['X-CSRFToken'] = getCsrfToken();
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: method,
+                    headers: headers,
+                    body: JSON.stringify(data),
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP error! Status: ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return await response.json();
+                } else {
+                    return {}; // Return empty object for 204 No Content, etc.
+                }
+            } catch (error) {
+                console.error('Error sending data:', error);
+                showMessageBox(`Error saving data: ${error.message}`, true);
+                throw error;
+            }
+        }
+
+        /**
+         * Deletes data from a given API endpoint.
+         * Includes CSRF token for DELETE requests.
+         * @param {string} endpoint - The API endpoint for deletion.
+         * @returns {Promise<void>} - A promise that resolves when deletion is successful.
+         */
+        async function deleteData(endpoint) {
+            const headers = {};
+            headers['X-CSRFToken'] = getCsrfToken(); // Add CSRF token for DELETE
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'DELETE',
+                    headers: headers, // Include headers with CSRF token
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
+                }
+                showMessageBox('Item deleted successfully!', false);
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                showMessageBox(`Error deleting item: ${error.message}`, true);
+                throw error;
+            }
+        }
+
+        // --- Tab Navigation ---
+
+        /**
+         * Shows the selected section and hides others.
+         * @param {string} sectionId - The ID of the section to show.
+         */
+        function showSection(sectionId) {
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            // event is a global object in browser, currentTarget refers to the element that the event listener is attached to
+            event.currentTarget.classList.add('active');
+
+            // Reload data when switching tabs
+            if (sectionId === 'students') {
+                loadStudents();
+            } else if (sectionId === 'subjects') {
+                loadSubjects();
+            } else if (sectionId === 'grades') {
+                loadGrades();
+                populateStudentAndSubjectDropdowns(); // Ensure dropdowns are updated for grades
+            }
+        }
+
+        // --- Confirmation Modal Logic ---
+        let deleteCallback = null;
+
+        /**
+         * Opens the confirmation modal.
+         * @param {Function} callback - The function to execute if confirmed.
+         */
+        function openModal(callback) {
+            deleteCallback = callback;
+            document.getElementById('confirmationModal').style.display = 'flex';
+        }
+
+        /**
+         * Closes the confirmation modal.
+         */
+        function closeModal() {
+            document.getElementById('confirmationModal').style.display = 'none';
+            deleteCallback = null;
+        }
+
+        document.getElementById('confirmDeleteBtn').onclick = () => {
+            if (deleteCallback) {
+                deleteCallback();
+                closeModal();
+            }
+        };
+
+        // --- Student Management ---
+
+        /**
+         * Loads and displays all students from the API.
+         */
+        async function loadStudents() {
+            const studentList = document.getElementById('studentList');
+            studentList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">Loading students...</td></tr>`;
+            const students = await fetchData('/students/');
+            studentList.innerHTML = ''; // Clear loading message
+
+            if (students.length === 0) {
+                studentList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
+                return;
+            }
+
+            students.forEach(student => {
+                const row = `
+                    <tr class="table-row">
+                        <td class="table-cell font-semibold">${student.student_id}</td>
+                        <td class="table-cell">${student.full_name}</td>
+                        <td class="table-cell">${student.email}</td>
+                        <td class="table-cell">${student.date_of_birth || 'N/A'}</td>
+                        <td class="table-cell">${new Date(student.enrollment_date).toLocaleDateString()}</td>
+                        <td class="table-cell">
+                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editStudent(${student.id})">Edit</button>
+                            <button class="btn btn-danger text-sm px-3 py-1 mr-2" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
+                            <button class="btn btn-primary text-sm px-3 py-1" onclick="viewStudentDetails(${student.id})">View Details</button>
+                        </td>
+                    </tr>
+                `;
+                studentList.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        /**
+         * Handles student form submission (add/update).
+         * @param {Event} event - The form submission event.
+         */
+        document.getElementById('studentForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const studentId = document.getElementById('studentId').value;
+            const studentData = {
+                student_id: document.getElementById('student_id').value,
+                first_name: document.getElementById('first_name').value,
+                last_name: document.getElementById('last_name').value,
+                email: document.getElementById('email').value,
+                date_of_birth: document.getElementById('date_of_birth').value || null, // Send null if empty
+            };
+
+            try {
+                if (studentId) {
+                    // Update existing student
+                    await sendData(`/students/${studentId}/`, 'PUT', studentData);
+                    showMessageBox('Student updated successfully!', false);
+                } else {
+                    // Create new student
+                    await sendData('/students/', 'POST', studentData);
+                    showMessageBox('Student added successfully!', false);
+                }
+                clearStudentForm();
+                loadStudents(); // Reload the list
+            } catch (error) {
+                // Error already handled by sendData function, just prevent further actions
+            }
+        });
+
+        /**
+         * Populates the student form for editing.
+         * @param {number} id - The ID of the student to edit.
+         */
+        async function editStudent(id) {
+            const student = await fetchData(`/students/${id}/`);
+            if (student) {
+                document.getElementById('studentId').value = student.id;
+                document.getElementById('student_id').value = student.student_id;
+                document.getElementById('first_name').value = student.first_name;
+                document.getElementById('last_name').value = student.last_name;
+                document.getElementById('email').value = student.email;
+                document.getElementById('date_of_birth').value = student.date_of_birth;
+                showMessageBox(`Editing student: ${student.full_name}`);
+            }
+        }
+
+        /**
+         * Clears the student form.
+         */
+        function clearStudentForm() {
+            document.getElementById('studentId').value = '';
+            document.getElementById('studentForm').reset();
+            showMessageBox('Student form cleared.');
+        }
+
+        /**
+         * Deletes a student.
+         * @param {number} id - The ID of the student to delete.
+         */
+        async function deleteStudent(id) {
+            try {
+                await deleteData(`/students/${id}/`);
+                loadStudents(); // Reload the list
+            } catch (error) {
+                // Error already handled by deleteData function
+            }
+        }
+
+        // --- Subject Management ---
+
+        /**
+         * Loads and displays all subjects from the API.
+         */
+        async function loadSubjects() {
+            const subjectList = document.getElementById('subjectList');
+            subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell">Loading subjects...</td></tr>`;
+            const subjects = await fetchData('/subjects/');
+            subjectList.innerHTML = ''; // Clear loading message
+
+            if (subjects.length === 0) {
+                subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
+                return;
+            }
+
+            subjects.forEach(subject => {
+                const row = `
+                    <tr class="table-row">
+                        <td class="table-cell font-semibold">${subject.code}</td>
+                        <td class="table-cell">${subject.name}</td>
+                        <td class="table-cell">${subject.description || 'N/A'}</td>
+                        <td class="table-cell">
+                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editSubject(${subject.id})">Edit</button>
+                            <button class="btn btn-danger text-sm px-3 py-1" onclick="openModal(() => deleteSubject(${subject.id}))">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                subjectList.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        /**
+         * Handles subject form submission (add/update).
+         * @param {Event} event - The form submission event.
+         */
+        document.getElementById('subjectForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const subjectId = document.getElementById('subjectId').value;
+            const subjectData = {
+                name: document.getElementById('subject_name').value,
+                code: document.getElementById('subject_code').value,
+                description: document.getElementById('subject_description').value,
+            };
+
+            try {
+                if (subjectId) {
+                    await sendData(`/subjects/${subjectId}/`, 'PUT', subjectData);
+                    showMessageBox('Subject updated successfully!', false);
+                } else {
+                    await sendData('/subjects/', 'POST', subjectData);
+                    showMessageBox('Subject added successfully!', false);
+                }
+                clearSubjectForm();
+                loadSubjects();
+            } catch (error) {
+                // Error handled by sendData
+            }
+        });
+
+        /**
+         * Populates the subject form for editing.
+         * @param {number} id - The ID of the subject to edit.
+         */
+        async function editSubject(id) {
+            const subject = await fetchData(`/subjects/${id}/`);
+            if (subject) {
+                document.getElementById('subjectId').value = subject.id;
+                document.getElementById('subject_name').value = subject.name;
+                document.getElementById('subject_code').value = subject.code;
+                document.getElementById('subject_description').value = subject.description;
+                showMessageBox(`Editing subject: ${subject.name}`);
+            }
+        }
+
+        /**
+         * Clears the subject form.
+         */
+        function clearSubjectForm() {
+            document.getElementById('subjectId').value = '';
+            document.getElementById('subjectForm').reset();
+            showMessageBox('Subject form cleared.');
+        }
+
+        /**
+         * Deletes a subject.
+         * @param {number} id - The ID of the subject to delete.
+         */
+        async function deleteSubject(id) {
+            try {
+                await deleteData(`/subjects/${id}/`);
+                loadSubjects();
+            } catch (error) {
+                // Error handled by deleteData
+            }
+        }
+
+        // --- Grade Management ---
+
+        /**
+         * Loads and displays all grades from the API.
+         */
+        async function loadGrades() {
+            const gradeList = document.getElementById('gradeList');
+            gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">Loading grades...</td></tr>`;
+            const grades = await fetchData('/grades/');
+            gradeList.innerHTML = ''; // Clear loading message
+
+            if (grades.length === 0) {
+                gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
+                return;
+            }
+
+            grades.forEach(grade => {
+                const row = `
+                    <tr class="table-row">
+                        <td class="table-cell">${grade.student.full_name || 'N/A'}</td>
+                        <td class="table-cell">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
+                        <td class="table-cell">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
+                        <td class="table-cell font-semibold">${grade.score}</td>
+                        <td class="table-cell">${new Date(grade.date_recorded).toLocaleDateString()}</td>
+                        <td class="table-cell">
+                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editGrade(${grade.id})">Edit</button>
+                            <button class="btn btn-danger text-sm px-3 py-1" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                gradeList.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        /**
+         * Populates the student and subject dropdowns in the grade form.
+         */
+        async function populateStudentAndSubjectDropdowns() {
+            const studentSelect = document.getElementById('grade_student');
+            const subjectSelect = document.getElementById('grade_subject');
+
+            // Clear previous options
+            studentSelect.innerHTML = '<option value="">Select Student</option>';
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+
+            const students = await fetchData('/students/');
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.full_name;
+                studentSelect.appendChild(option);
+            });
+
+            const subjects = await fetchData('/subjects/');
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = `${subject.name} (${subject.code})`;
+                subjectSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Handles grade form submission (add/update).
+         * @param {Event} event - The form submission event.
+         */
+        document.getElementById('gradeForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const gradeId = document.getElementById('gradeId').value;
+            const gradeData = {
+                student_id: parseInt(document.getElementById('grade_student').value),
+                subject_id: parseInt(document.getElementById('grade_subject').value),
+                grade_type: document.getElementById('grade_type').value,
+                score: parseFloat(document.getElementById('grade_score').value),
+                notes: document.getElementById('grade_notes').value,
+            };
+
+            try {
+                if (gradeId) {
+                    await sendData(`/grades/${gradeId}/`, 'PUT', gradeData);
+                    showMessageBox('Grade updated successfully!', false);
+                } else {
+                    await sendData('/grades/', 'POST', gradeData);
+                    showMessageBox('Grade added successfully!', false);
+                }
+                clearGradeForm();
+                loadGrades();
+            } catch (error) {
+                // Error handled by sendData
+            }
+        });
+
+        /**
+         * Populates the grade form for editing.
+         * @param {number} id - The ID of the grade to edit.
+         */
+        async function editGrade(id) {
+            const grade = await fetchData(`/grades/${id}/`);
+            if (grade) {
+                document.getElementById('gradeId').value = grade.id;
+                // Ensure dropdowns are populated BEFORE setting selected values
+                await populateStudentAndSubjectDropdowns();
+                document.getElementById('grade_student').value = grade.student.id;
+                document.getElementById('grade_subject').value = grade.subject.id;
+                document.getElementById('grade_type').value = grade.grade_type;
+                document.getElementById('grade_score').value = grade.score;
+                document.getElementById('grade_notes').value = grade.notes;
+                showMessageBox(`Editing grade for ${grade.student.full_name} in ${grade.subject.name}`);
+            }
+        }
+
+        /**
+         * Clears the grade form.
+         */
+        function clearGradeForm() {
+            document.getElementById('gradeId').value = '';
+            document.getElementById('gradeForm').reset();
+            // Reset dropdowns to default option
+            document.getElementById('grade_student').value = '';
+            document.getElementById('grade_subject').value = '';
+            document.getElementById('grade_type').value = '';
+            showMessageBox('Grade form cleared.');
+        }
+
+        /**
+         * Deletes a grade.
+         * @param {number} id - The ID of the grade to delete.
+         */
+        async function deleteGrade(id) {
+            try {
+                await deleteData(`/grades/${id}/`);
+                loadGrades();
+            } catch (error) {
+                // Error handled by deleteData
+            }
+        }
+
+        // --- Student Details Modal Functions (New) ---
+
+        /**
+         * Opens the student detail modal and populates it with data.
+         * @param {number} studentId - The ID of the student to display.
+         */
+        async function viewStudentDetails(studentId) {
+            const studentDetailModal = document.getElementById('studentDetailModal');
+            const studentDetailName = document.getElementById('studentDetailName');
+            const detailStudentId = document.getElementById('detail_student_id');
+            const detailEmail = document.getElementById('detail_email');
+            const detailDob = document.getElementById('detail_dob');
+            const detailEnrollmentDate = document.getElementById('detail_enrollment_date');
+            const studentGradesList = document.getElementById('studentGradesList');
+
+            // Show loading message for grades
+            studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell">Loading grades...</td></tr>`;
+
+            const student = await fetchData(`/students/${studentId}/`);
+            const allGrades = await fetchData('/grades/'); // Fetch all grades
+
+            if (student) {
+                studentDetailName.textContent = `${student.full_name}'s Details`;
+                detailStudentId.textContent = student.student_id;
+                detailEmail.textContent = student.email;
+                detailDob.textContent = student.date_of_birth || 'N/A';
+                detailEnrollmentDate.textContent = new Date(student.enrollment_date).toLocaleDateString();
+
+                // Filter grades for the specific student
+                const studentGrades = allGrades.filter(grade => grade.student.id === studentId);
+
+                studentGradesList.innerHTML = ''; // Clear loading message
+
+                if (studentGrades.length === 0) {
+                    studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
+                } else {
+                    studentGrades.forEach(grade => {
+                        const row = `
+                            <tr class="table-row">
+                                <td class="table-cell text-sm py-2 px-3">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
+                                <td class="table-cell text-sm py-2 px-3">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
+                                <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}</td>
+                                <td class="table-cell text-sm py-2 px-3">${new Date(grade.date_recorded).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                        studentGradesList.insertAdjacentHTML('beforeend', row);
+                    });
+                }
+
+                studentDetailModal.style.display = 'flex'; // Show the modal
+            } else {
+                showMessageBox('Failed to load student details.', true);
+            }
+        }
+
+        /**
+         * Closes the student detail modal.
+         */
+        function closeStudentDetailModal() {
+            document.getElementById('studentDetailModal').style.display = 'none';
+        }
+
+
+        // --- Initial Load ---
+        // Load students and subjects when the page loads, and then hide the loading message for the first active tab.
+        window.onload = () => {
+            loadStudents(); // Load initial data for the default active tab (Students)
+            populateStudentAndSubjectDropdowns(); // Also load these for the Grades tab's dropdowns
+        };
+    </script>
 </body>
 </html>
