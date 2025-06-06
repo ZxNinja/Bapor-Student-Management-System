@@ -13,20 +13,13 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'slm$kz=tkjmztcjtke&vqh0-4)-@=$
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
 # Allowed hosts for your Django application.
-# Use an environment variable for production hosts.
-# For local development, '127.0.0.1' and 'localhost' are always implicitly allowed by Django if DEBUG is True.
-# When DEBUG is False, you MUST explicitly list allowed hosts.
-# We will use an environment variable for this.
-# The split(',') ensures that if you put "host1,host2" in the env var, it becomes a list.
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
-
-# Only apply specific hosts if DEBUG is False and ALLOWED_HOSTS from env is empty,
-# or if you want to override for local dev with specific hosts.
-# A simpler approach is to rely *solely* on the environment variable for production.
-# The primary reason for the 400 error is that when DEBUG is False, the 'if DEBUG:' block is skipped,
-# and if DJANGO_ALLOWED_HOSTS isn't set, ALLOWED_HOSTS becomes an empty list, causing the 400 error.
-# The best fix is to ensure DJANGO_ALLOWED_HOSTS env var is ALWAYS set correctly on Render.
-# The code below *correctly* handles the case where the env var might be empty.
+# IMPORTANT: This list is now hardcoded.
+# If your Render domain or other allowed hosts change, you must update this file.
+# For production, replace '.onrender.com' with your exact Render domain
+# (e.g., 'student-system-api-ciez.onrender.com') for stronger security,
+# or keep '.onrender.com' to allow all subdomains of Render.
+# For local development, '127.0.0.1' and 'localhost' are implicitly allowed by Django if DEBUG is True.
+ALLOWED_HOSTS = ['.onrender.com'] # You can change this to 'student-system-api-ciez.onrender.com' if preferred
 
 
 # Application definition
