@@ -1,21 +1,34 @@
 # sms_backend/settings.py
+# This file contains the main configuration for your Django project.
 
-import os # Ensure this is at the very top
+import os
+import dj_database_url # Used for parsing database URLs from environment variables
+from pathlib import Path # Python 3.4+ standard library for filesystem paths
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-**************************************************' # Replace with your actual secret key
+# Use environment variable for production SECRET_KEY for security.
+# Provide a dummy key for local development.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-**************************************************')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set DEBUG to False for production.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+# Allowed hosts for your Django application.
+# In production, this should include your backend's domain (e.g., Render domain)
+# and potentially '127.0.0.1' for health checks.
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# If DEBUG is True, allow all for convenience (be careful in production)
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -26,16 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', # Make sure this is present
-    'rest_framework',
-    'corsheaders', # Crucial for frontend API calls
-    'students',
+    'django.contrib.staticfiles',
+    # Third-party apps
+    'rest_framework', # Django REST Framework for building APIs
+    'corsheaders',    # For handling Cross-Origin Resource Sharing
+    # Your project apps
+    'students',       # Your student management application
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # Crucial: Must be placed high up
+    'corsheaders.middleware.CorsMiddleware', # Must be placed high up
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -45,12 +60,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'sms_backend.urls'
 
-import os
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR], # Change this line to point to BASE_DIR
+        # DIRS now points to the project's base directory, allowing index.html to be found.
+        'DIRS': [BASE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,17 +76,22 @@ TEMPLATES = [
         },
     },
 ]
+
 WSGI_APPLICATION = 'sms_backend.wsgi.application'
+ASGI_APPLICATION = 'sms_backend.asgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Use dj-database-url to parse the DATABASE_URL environment variable.
+# This is common for production environments like Render, Heroku, etc.
+# Fallback to SQLite for local development if DATABASE_URL is not set.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600 # Optional: connection lifespan for persistent connections
+    )
 }
 
 
@@ -110,19 +129,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images) configuration
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = '/static/' # This is the URL prefix for static files. Keep the leading slash.
-
+STATIC_URL = '/static/' # The URL prefix for static files.
+# This tells Django where to find your static files (css, js) during development
 STATICFILES_DIRS = [
-    # This tells Django where to find your static files (css, js) during development
-    os.path.join(BASE_DIR, 'Frontend'),
+    BASE_DIR / 'Frontend', # Assuming your frontend static files are here
 ]
 
-# Optional: For production deployment, you'd typically collect them here.
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# The directory where `collectstatic` will gather all static files for production serving.
+# This should be outside your project root, or handled by your hosting provider.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 # CORS configuration for your frontend API calls
-CORS_ALLOW_ALL_ORIGINS = True # For development, allows all origins.
-# In production, use CORS_ALLOWED_ORIGINS = ['http://your-frontend-domain.com', 'https://your-frontend-domain.com']
+# In production, specify your frontend's exact URL (e.g., your GitHub Pages URL).
+CORS_ALLOW_ALL_ORIGINS = False # IMPORTANT: Set to False for production!
+CORS_ALLOWED_ORIGINS = [
+    "https://zxninja.github.io", # Your GitHub Pages frontend URL
+    # Add other domains if necessary (e.g., localhost for local frontend dev)
+]
+# If you need to allow credentials (e.g., cookies, authorization headers)
+# CORS_ALLOW_CREDENTIALS = True
 
 
 # Default primary key field type
@@ -130,3 +156,16 @@ CORS_ALLOW_ALL_ORIGINS = True # For development, allows all origins.
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# REST Framework settings (optional, but good practice)
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny', # Allows unauthenticated access to API (for simplicity)
+        # In a real app, you might use: 'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
+}

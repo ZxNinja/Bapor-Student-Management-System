@@ -1,5 +1,3 @@
-
-
 # students/serializers.py
 # This file defines serializers, which convert complex data types (like Django models)
 # into native Python datatypes that can be easily rendered into JSON, XML, or other
@@ -50,6 +48,7 @@ class GradeSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(read_only=True) # Display full subject object, read-only
 
     # To allow creating/updating grades by sending student/subject IDs instead of full objects
+    # write_only=True ensures these fields are used for input, but not displayed in output.
     student_id = serializers.PrimaryKeyRelatedField(
         queryset=Student.objects.all(), source='student', write_only=True,
         help_text="ID of the student to whom this grade belongs"

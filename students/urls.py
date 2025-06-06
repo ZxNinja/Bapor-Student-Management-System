@@ -1,5 +1,3 @@
-
-
 # students/urls.py
 # This file defines the URL routing for the 'students' app's API endpoints.
 # Django REST Framework's routers automatically generate URL patterns
@@ -14,7 +12,8 @@ router = DefaultRouter()
 
 # Register our viewsets with the router.
 # The `basename` argument is used to generate URL names, e.g., 'students-list', 'students-detail'.
-# It's especially useful when a queryset is not provided in the ViewSet.
+# It's especially useful when a queryset is not provided in the ViewSet, or when you have
+# different ViewSets for the same model.
 router.register(r'students', StudentViewSet, basename='student')
 router.register(r'subjects', SubjectViewSet, basename='subject')
 router.register(r'grades', GradeViewSet, basename='grade')
