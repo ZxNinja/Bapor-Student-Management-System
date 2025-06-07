@@ -5,7 +5,8 @@
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import StudentViewSet, SubjectViewSet, GradeViewSet
+# Import the new PaperViewSet
+from .views import StudentViewSet, SubjectViewSet, PaperViewSet, GradeViewSet
 
 # Create a router instance
 router = DefaultRouter()
@@ -16,9 +17,11 @@ router = DefaultRouter()
 # different ViewSets for the same model.
 router.register(r'students', StudentViewSet, basename='student')
 router.register(r'subjects', SubjectViewSet, basename='subject')
+router.register(r'papers', PaperViewSet, basename='paper') # Register the new PaperViewSet
 router.register(r'grades', GradeViewSet, basename='grade')
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('', include(router.urls)),
 ]
+

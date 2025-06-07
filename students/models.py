@@ -40,36 +40,50 @@ class Subject(models.Model):
     class Meta:
         ordering = ['name']
 
-class Grade(models.Model):
+class Paper(models.Model):
     """
-    Represents a grade for a specific student in a specific subject.
-    Grades can be for activities, quizzes, or exams.
+    Represents an assignment, quiz, or exam.
+    It defines the type of assessment and its total possible score.
     """
-    GRADE_TYPES = (
+    PAPER_TYPES = (
         ('activity', 'Activity'),
         ('quiz', 'Quiz'),
         ('exam', 'Exam'),
     )
 
+    name = models.CharField(max_length=200, help_text="Name of the paper (e.g., 'Midterm Exam', 'Homework 1')")
+    paper_type = models.CharField(max_length=10, choices=PAPER_TYPES, help_text="Type of assessment (Activity, Quiz, Exam)")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='papers', help_text="The subject this paper belongs to")
+    total_score = models.DecimalField(max_digits=5, decimal_places=2, help_text="Maximum possible score for this paper")
+    date_assigned = models.DateField(auto_now_add=True, help_text="Date the paper was created/assigned")
+
+    def __str__(self):
+        """String representation of the Paper object."""
+        return f"{self.name} ({self.subject.code} - {self.get_paper_type_display()})"
+
+    class Meta:
+        # Ensures that a paper name is unique within a subject for a given type
+        unique_together = ('name', 'subject', 'paper_type')
+        ordering = ['subject', 'date_assigned', 'name']
+
+
+class Grade(models.Model):
+    """
+    Represents a grade for a specific student on a specific paper.
+    Each grade is linked to a Paper, which defines its type (Activity, Quiz, Exam).
+    """
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='grades', help_text="The student who received this grade")
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='grades', help_text="The subject for which the grade was given")
-    grade_type = models.CharField(max_length=10, choices=GRADE_TYPES, help_text="Type of assessment (Activity, Quiz, Exam)")
-    score = models.DecimalField(max_digits=5, decimal_places=2, help_text="Score obtained (e.g., 85.50)")
+    paper = models.ForeignKey(Paper, on_delete=models.CASCADE, related_name='grades', help_text="The paper for which this grade was given")
+    score = models.DecimalField(max_digits=5, decimal_places=2, help_text="Score obtained by the student on this paper")
     date_recorded = models.DateField(auto_now_add=True, help_text="Date the grade was recorded")
     notes = models.TextField(blank=True, null=True, help_text="Additional notes about the grade")
 
     def __str__(self):
         """String representation of the Grade object."""
-        return f"{self.student.first_name} {self.student.last_name} - {self.subject.code} ({self.grade_type}): {self.score}"
+        return f"{self.student.first_name} {self.student.last_name} - {self.paper.name}: {self.score}/{self.paper.total_score}"
 
     class Meta:
-        # Ensures that a student can only have one grade of a specific type
-        # for a particular subject on a given date (optional, can be adjusted)
-        # Unique together ensures uniqueness of the combination of fields.
-        # This particular `unique_together` might be too strict if a student
-        # has multiple activities/quizzes in a single day for the same subject.
-        # A more flexible approach might be to allow multiple grades of the same type
-        # and rely on the frontend or a specific 'assessment_name' field for distinction.
-        # For simplicity, we'll keep it as is, but it's a point to consider for refinement.
-        unique_together = ('student', 'subject', 'grade_type', 'date_recorded')
-        ordering = ['student', 'subject', 'date_recorded', 'grade_type']
+        # Ensures a student has only one grade for a particular paper
+        unique_together = ('student', 'paper')
+        ordering = ['student', 'paper__subject', 'paper__name', 'date_recorded']
+

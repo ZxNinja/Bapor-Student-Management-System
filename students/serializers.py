@@ -5,7 +5,7 @@
 # validated and saved into model instances.
 
 from rest_framework import serializers
-from .models import Student, Subject, Grade
+from .models import Student, Subject, Paper, Grade
 
 class StudentSerializer(serializers.ModelSerializer):
     """
@@ -37,30 +37,45 @@ class SubjectSerializer(serializers.ModelSerializer):
         model = Subject
         fields = '__all__' # Include all fields from the Subject model
 
+class PaperSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Paper model.
+    Allows for nested representation of subject details.
+    """
+    subject = SubjectSerializer(read_only=True) # Display full subject object, read-only
+
+    # To allow creating/updating papers by sending subject ID instead of full object
+    subject_id = serializers.PrimaryKeyRelatedField(
+        queryset=Subject.objects.all(), source='subject', write_only=True,
+        help_text="ID of the subject this paper belongs to"
+    )
+
+    class Meta:
+        model = Paper
+        fields = '__all__'
+        read_only_fields = ['date_assigned'] # date_assigned is set automatically
+
 class GradeSerializer(serializers.ModelSerializer):
     """
     Serializer for the Grade model.
-    Allows for nested representation of student and subject details.
+    Allows for nested representation of student and paper details.
     """
-    # Use nested serializers to display related student and subject information.
-    # This makes the API response more informative without extra lookups on the client.
+    # Use nested serializers to display related student and paper information.
     student = StudentSerializer(read_only=True) # Display full student object, read-only
-    subject = SubjectSerializer(read_only=True) # Display full subject object, read-only
+    paper = PaperSerializer(read_only=True)     # Display full paper object, read-only
 
-    # To allow creating/updating grades by sending student/subject IDs instead of full objects
-    # write_only=True ensures these fields are used for input, but not displayed in output.
+    # To allow creating/updating grades by sending student/paper IDs instead of full objects
     student_id = serializers.PrimaryKeyRelatedField(
         queryset=Student.objects.all(), source='student', write_only=True,
         help_text="ID of the student to whom this grade belongs"
     )
-    subject_id = serializers.PrimaryKeyRelatedField(
-        queryset=Subject.objects.all(), source='subject', write_only=True,
-        help_text="ID of the subject for which this grade was given"
+    paper_id = serializers.PrimaryKeyRelatedField(
+        queryset=Paper.objects.all(), source='paper', write_only=True,
+        help_text="ID of the paper for which this grade was given"
     )
 
     class Meta:
         model = Grade
         fields = '__all__' # Include all fields from the Grade model
-        # Explicitly list fields for clarity and control, especially with write_only fields
-        # fields = ['id', 'student', 'subject', 'grade_type', 'score', 'date_recorded', 'notes', 'student_id', 'subject_id']
         read_only_fields = ['date_recorded'] # date_recorded is set automatically
+

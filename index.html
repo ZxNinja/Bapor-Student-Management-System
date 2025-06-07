@@ -20,57 +20,68 @@
             margin: 2rem auto;
             padding: 1.5rem;
             background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 16px; /* Slightly more rounded */
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* Stronger shadow */
         }
         .header {
             background-color: #4f46e5; /* Indigo 600 */
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
+            padding: 1.5rem 2rem; /* More padding */
+            border-radius: 14px; /* Matches container */
+            margin-bottom: 2.5rem; /* More space */
             text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .tab-button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            padding: 0.85rem 1.8rem; /* More padding */
+            border-radius: 10px; /* More rounded */
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.3s ease-in-out; /* Smoother transition */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         .tab-button.active {
             background-color: #4f46e5; /* Indigo 600 */
             color: white;
+            transform: translateY(-2px); /* Slight lift */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
         .tab-button:not(.active):hover {
             background-color: #e0e7ff; /* Indigo 100 */
             color: #4f46e5;
+            transform: translateY(-1px); /* Slight lift on hover */
         }
         .form-section {
             display: none; /* Hidden by default */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
         .form-section.active {
             display: block; /* Shown when active */
+            opacity: 1;
+            transform: translateY(0);
         }
         .input-field {
-            padding: 0.75rem;
+            padding: 0.8rem; /* More padding */
             border: 1px solid #d1d5db; /* Gray 300 */
-            border-radius: 8px;
+            border-radius: 10px; /* More rounded */
             width: 100%;
-            box-sizing: border-box; /* Include padding in width */
-            transition: border-color 0.2s;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .input-field:focus {
             outline: none;
             border-color: #6366f1; /* Indigo 500 */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Indigo 500 with opacity */
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25); /* More prominent shadow */
         }
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            padding: 0.8rem 1.6rem; /* More padding */
+            border-radius: 10px; /* More rounded */
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         .btn-primary {
             background-color: #4f46e5; /* Indigo 600 */
@@ -78,7 +89,8 @@
         }
         .btn-primary:hover {
             background-color: #4338ca; /* Indigo 700 */
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .btn-secondary {
             background-color: #e0e7ff; /* Indigo 100 */
@@ -86,7 +98,8 @@
         }
         .btn-secondary:hover {
             background-color: #c7d2fe; /* Indigo 200 */
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .btn-danger {
             background-color: #ef4444; /* Red 500 */
@@ -94,21 +107,34 @@
         }
         .btn-danger:hover {
             background-color: #dc2626; /* Red 600 */
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .table-header {
             background-color: #e0e7ff; /* Indigo 100 */
             color: #4f46e5;
             font-weight: 600;
             text-align: left;
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1.2rem; /* More padding */
+            font-size: 0.9rem; /* Slightly smaller for table headers */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .table-row:nth-child(even) {
             background-color: #eff6ff; /* Blue 50 */
         }
         .table-cell {
-            padding: 0.75rem 1rem;
+            padding: 0.85rem 1.2rem; /* More padding */
             border-bottom: 1px solid #e5e7eb; /* Gray 200 */
+            font-size: 0.95rem; /* Consistent font size */
+        }
+        .table-cell:last-child {
+            border-right: none;
+        }
+        .table-container {
+            border-radius: 12px; /* Consistent rounded corners */
+            overflow: hidden; /* Ensures rounded corners clip content */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Subtle shadow for tables */
         }
         .modal {
             display: none;
@@ -119,79 +145,163 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5); /* Darker overlay */
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal.open {
+            opacity: 1;
         }
         .modal-content {
             background-color: #fefefe;
             padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border-radius: 16px; /* More rounded */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Stronger shadow */
             position: relative;
-            max-width: 500px;
+            max-width: 550px; /* Slightly wider */
             width: 90%;
             text-align: center;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .modal.open .modal-content {
+            transform: translateY(0);
         }
         .close-button {
-            color: #aaa;
+            color: #9ca3af; /* Gray 400 */
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
+            top: 18px;
+            right: 22px;
+            font-size: 30px; /* Larger */
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s;
         }
         .close-button:hover,
         .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
+            color: #333;
         }
         .message-box {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: #4CAF50; /* Green */
+            background-color: #22c55e; /* Green 500 */
             color: white;
             padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none; /* Hidden by default */
+            border-radius: 10px; /* More rounded */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
             z-index: 1000;
+            animation: fadeInOut 3s forwards;
         }
         .message-box.error {
-            background-color: #f44336; /* Red */
+            background-color: #ef4444; /* Red 500 */
         }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
         /* Specific styles for the student detail modal */
         #studentDetailModal .modal-content {
-            max-width: 800px; /* Wider for details */
+            max-width: 900px; /* Wider for details */
             text-align: left;
         }
         #studentDetailModal h3 {
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 600; /* font-semibold */
-            margin-bottom: 1rem;
+            font-size: 1.75rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1.5rem;
             color: #4f46e5; /* Indigo 600 */
+            text-align: center;
         }
         #studentDetailModal .detail-item {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
         }
         #studentDetailModal .detail-label {
-            font-weight: 500; /* font-medium */
+            font-weight: 600; /* font-semibold */
             color: #4a5568; /* Gray 700 */
-            width: 120px; /* Fixed width for labels */
-            display: inline-block;
+            min-width: 130px; /* Fixed width for labels */
+            flex-shrink: 0;
+            margin-right: 0.5rem;
         }
         #studentDetailModal .detail-value {
             color: #2d3748; /* Gray 800 */
+            flex-grow: 1;
         }
         #studentDetailModal .grades-table-container {
-            margin-top: 1.5rem;
-            max-height: 300px; /* Fixed height for scrollable grades table */
+            margin-top: 2rem;
+            max-height: 350px; /* Fixed height for scrollable grades table */
             overflow-y: auto;
             border: 1px solid #e2e8f0; /* Gray 300 */
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); /* Inner shadow for scrollable area */
+        }
+        /* Specific styles for grade breakdown */
+        .grade-summary-card {
+            background-color: #f0f4ff; /* Lighter indigo */
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.2s ease-in-out;
+        }
+        .grade-summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .grade-summary-card h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 0.5rem;
+        }
+        .grade-summary-card p {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a202c; /* Darker text */
+        }
+        .grade-summary-card p.average-text {
+            font-size: 1.1rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        /* Style for the overall average card */
+        #overall_average_card {
+            background-color: #4f46e5; /* Indigo 600 */
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            order: -1; /* Make it appear first in the grid */
+        }
+        #overall_average_card h5 {
+            color: white;
+            font-size: 1.1rem;
+        }
+        #overall_average_card p {
+            color: white;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #4f46e5; /* Blue */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -199,28 +309,32 @@
     <div class="container">
         <header class="header">
             <h1 class="text-3xl font-bold">Student Management System</h1>
-            <p class="mt-2 text-lg">Manage student records, subjects, and grades</p>
+            <p class="mt-2 text-lg opacity-90">Manage student records, subjects, papers, and grades with ease</p>
         </header>
 
         <!-- Navigation Tabs -->
-        <nav class="flex justify-center space-x-4 mb-8">
-            <button class="tab-button active" onclick="showSection('students')">Students</button>
-            <button class="tab-button" onclick="showSection('subjects')">Subjects</button>
-            <button class="tab-button" onclick="showSection('grades')">Grades</button>
+        <nav class="flex justify-center space-x-4 mb-10">
+            <button class="tab-button active" onclick="showSection('students', this)">Students</button>
+            <button class="tab-button" onclick="showSection('subjects', this)">Subjects</button>
+            <button class="tab-button" onclick="showSection('papers', this)">Papers</button>
+            <button class="tab-button" onclick="showSection('grades', this)">Grades</button>
         </nav>
 
         <!-- Message Box for notifications -->
         <div id="messageBox" class="message-box"></div>
 
         <!-- Hidden input for CSRF token -->
-        <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}">
+        <!-- In a real Django project, this would be generated by Django in the template -->
+        <!-- For local HTML file testing, you might need a dummy value or remove if testing without full CSRF setup -->
+        <input type="hidden" name="csrfmiddlewaretoken" value="dummy_csrf_token_for_dev_if_needed">
+
 
         <!-- Students Section -->
         <section id="students" class="form-section active">
-            <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Student Management</h2>
+            <h2 class="text-2xl font-semibold mb-6 text-indigo-700">Student Management</h2>
 
             <!-- Add/Edit Student Form -->
-            <form id="studentForm" class="bg-indigo-50 p-6 rounded-lg shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="studentForm" class="bg-indigo-50 p-7 rounded-xl shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <input type="hidden" id="studentId" value="">
                 <div>
                     <label for="student_id" class="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
@@ -242,15 +356,15 @@
                     <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                     <input type="date" id="date_of_birth" class="input-field">
                 </div>
-                <div class="md:col-span-2 flex justify-end space-x-4">
+                <div class="md:col-span-2 flex justify-end space-x-4 mt-2">
                     <button type="submit" class="btn btn-primary">Save Student</button>
                     <button type="button" class="btn btn-secondary" onclick="clearStudentForm()">Clear Form</button>
                 </div>
             </form>
 
             <!-- Student List -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto table-container">
+                <table class="min-w-full bg-white">
                     <thead>
                         <tr>
                             <th class="table-header">Student ID</th>
@@ -258,13 +372,16 @@
                             <th class="table-header">Email</th>
                             <th class="table-header">DOB</th>
                             <th class="table-header">Enrolled On</th>
-                            <th class="table-header w-48">Actions</th> <!-- Increased width for new button -->
+                            <th class="table-header w-56">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="studentList">
                         <!-- Student rows will be injected here by JavaScript -->
                         <tr>
-                            <td colspan="6" class="text-center py-4 table-cell">Loading students...</td>
+                            <td colspan="6" class="text-center py-6 table-cell">
+                                <div class="loading-spinner"></div>
+                                <p class="text-gray-600 mt-2">Loading students...</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -273,10 +390,10 @@
 
         <!-- Subjects Section -->
         <section id="subjects" class="form-section">
-            <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Subject Management</h2>
+            <h2 class="text-2xl font-semibold mb-6 text-indigo-700">Subject Management</h2>
 
             <!-- Add/Edit Subject Form -->
-            <form id="subjectForm" class="bg-indigo-50 p-6 rounded-lg shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="subjectForm" class="bg-indigo-50 p-7 rounded-xl shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <input type="hidden" id="subjectId" value="">
                 <div>
                     <label for="subject_name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
@@ -290,15 +407,15 @@
                     <label for="subject_description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                     <textarea id="subject_description" class="input-field" rows="3" placeholder="Brief description of the subject"></textarea>
                 </div>
-                <div class="md:col-span-2 flex justify-end space-x-4">
+                <div class="md:col-span-2 flex justify-end space-x-4 mt-2">
                     <button type="submit" class="btn btn-primary">Save Subject</button>
                     <button type="button" class="btn btn-secondary" onclick="clearSubjectForm()">Clear Form</button>
                 </div>
             </form>
 
             <!-- Subject List -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto table-container">
+                <table class="min-w-full bg-white">
                     <thead>
                         <tr>
                             <th class="table-header">Code</th>
@@ -310,19 +427,86 @@
                     <tbody id="subjectList">
                         <!-- Subject rows will be injected here by JavaScript -->
                         <tr>
-                            <td colspan="4" class="text-center py-4 table-cell">Loading subjects...</td>
+                            <td colspan="4" class="text-center py-6 table-cell">
+                                <div class="loading-spinner"></div>
+                                <p class="text-gray-600 mt-2">Loading subjects...</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
+        <!-- Papers Section (New) -->
+        <section id="papers" class="form-section">
+            <h2 class="text-2xl font-semibold mb-6 text-indigo-700">Paper Management</h2>
+
+            <!-- Add/Edit Paper Form -->
+            <form id="paperForm" class="bg-indigo-50 p-7 rounded-xl shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <input type="hidden" id="paperId" value="">
+                <div>
+                    <label for="paper_name" class="block text-sm font-medium text-gray-700 mb-1">Paper Name</label>
+                    <input type="text" id="paper_name" class="input-field" placeholder="e.g., Midterm Exam" required>
+                </div>
+                <div>
+                    <label for="paper_type" class="block text-sm font-medium text-gray-700 mb-1">Paper Type</label>
+                    <select id="paper_type" class="input-field" required>
+                        <option value="">Select Type</option>
+                        <option value="activity">Activity</option>
+                        <option value="quiz">Quiz</option>
+                        <option value="exam">Exam</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="paper_subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                    <select id="paper_subject" class="input-field" required>
+                        <option value="">Select Subject</option>
+                        <!-- Subjects will be loaded here by JavaScript -->
+                    </select>
+                </div>
+                <div>
+                    <label for="paper_total_score" class="block text-sm font-medium text-gray-700 mb-1">Total Score</label>
+                    <input type="number" step="0.01" id="paper_total_score" class="input-field" placeholder="e.g., 100.00" required>
+                </div>
+                <div class="md:col-span-2 flex justify-end space-x-4 mt-2">
+                    <button type="submit" class="btn btn-primary">Save Paper</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearPaperForm()">Clear Form</button>
+                </div>
+            </form>
+
+            <!-- Paper List -->
+            <div class="overflow-x-auto table-container">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="table-header">Name</th>
+                            <th class="table-header">Type</th>
+                            <th class="table-header">Subject</th>
+                            <th class="table-header">Max Score</th>
+                            <th class="table-header">Date Assigned</th>
+                            <th class="table-header w-32">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paperList">
+                        <!-- Paper rows will be injected here by JavaScript -->
+                        <tr>
+                            <td colspan="6" class="text-center py-6 table-cell">
+                                <div class="loading-spinner"></div>
+                                <p class="text-gray-600 mt-2">Loading papers...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
         <!-- Grades Section -->
         <section id="grades" class="form-section">
-            <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Grade Management</h2>
+            <h2 class="text-2xl font-semibold mb-6 text-indigo-700">Grade Management</h2>
 
             <!-- Add/Edit Grade Form -->
-            <form id="gradeForm" class="bg-indigo-50 p-6 rounded-lg shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="gradeForm" class="bg-indigo-50 p-7 rounded-xl shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <input type="hidden" id="gradeId" value="">
                 <div>
                     <label for="grade_student" class="block text-sm font-medium text-gray-700 mb-1">Student</label>
@@ -332,19 +516,10 @@
                     </select>
                 </div>
                 <div>
-                    <label for="grade_subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                    <select id="grade_subject" class="input-field" required>
-                        <option value="">Select Subject</option>
-                        <!-- Subjects will be loaded here by JavaScript -->
-                    </select>
-                </div>
-                <div>
-                    <label for="grade_type" class="block text-sm font-medium text-gray-700 mb-1">Grade Type</label>
-                    <select id="grade_type" class="input-field" required>
-                        <option value="">Select Type</option>
-                        <option value="activity">Activity</option>
-                        <option value="quiz">Quiz</option>
-                        <option value="exam">Exam</option>
+                    <label for="grade_paper" class="block text-sm font-medium text-gray-700 mb-1">Paper (Assignment/Quiz/Exam)</label>
+                    <select id="grade_paper" class="input-field" required>
+                        <option value="">Select Paper</option>
+                        <!-- Papers will be loaded here by JavaScript -->
                     </select>
                 </div>
                 <div>
@@ -355,21 +530,47 @@
                     <label for="grade_notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
                     <textarea id="grade_notes" class="input-field" rows="3" placeholder="Any additional notes about the grade"></textarea>
                 </div>
-                <div class="md:col-span-2 flex justify-end space-x-4">
+                <div class="md:col-span-2 flex justify-end space-x-4 mt-2">
                     <button type="submit" class="btn btn-primary">Save Grade</button>
                     <button type="button" class="btn btn-secondary" onclick="clearGradeForm()">Cancel</button>
                 </div>
             </form>
 
-            <!-- Grade List -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Grade Filters and List -->
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
+                <div class="w-full md:w-1/3">
+                    <label for="filter_student" class="block text-sm font-medium text-gray-700 mb-1">Filter by Student</label>
+                    <select id="filter_student" class="input-field" onchange="loadGrades()">
+                        <option value="">All Students</option>
+                    </select>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <label for="filter_subject" class="block text-sm font-medium text-gray-700 mb-1">Filter by Subject</label>
+                    <select id="filter_subject" class="input-field" onchange="loadGrades()">
+                        <option value="">All Subjects</option>
+                    </select>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <label for="filter_grade_type" class="block text-sm font-medium text-gray-700 mb-1">Filter by Type</label>
+                    <select id="filter_grade_type" class="input-field" onchange="loadGrades()">
+                        <option value="">All Types</option>
+                        <option value="activity">Activity</option>
+                        <option value="quiz">Quiz</option>
+                        <option value="exam">Exam</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto table-container">
+                <table class="min-w-full bg-white">
                     <thead>
                         <tr>
                             <th class="table-header">Student</th>
-                            <th class="table-header">Subject</th>
+                            <th class="table-header">Paper</th>
                             <th class="table-header">Type</th>
+                            <th class="table-header">Subject</th>
                             <th class="table-header">Score</th>
+                            <th class="table-header">Percentage</th>
                             <th class="table-header">Date</th>
                             <th class="table-header w-32">Actions</th>
                         </tr>
@@ -377,7 +578,10 @@
                     <tbody id="gradeList">
                         <!-- Grade rows will be injected here by JavaScript -->
                         <tr>
-                            <td colspan="6" class="text-center py-4 table-cell">Loading grades...</td>
+                            <td colspan="8" class="text-center py-6 table-cell">
+                                <div class="loading-spinner"></div>
+                                <p class="text-gray-600 mt-2">Loading grades...</p>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -388,7 +592,7 @@
         <div id="confirmationModal" class="modal">
             <div class="modal-content">
                 <span class="close-button" onclick="closeModal()">&times;</span>
-                <p class="text-lg mb-6">Are you sure you want to delete this item?</p>
+                <p class="text-lg mb-6 text-gray-700 font-medium">Are you sure you want to delete this item?</p>
                 <div class="flex justify-center space-x-4">
                     <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -400,30 +604,58 @@
         <div id="studentDetailModal" class="modal">
             <div class="modal-content">
                 <span class="close-button" onclick="closeStudentDetailModal()">&times;</span>
-                <h3 id="studentDetailName" class="text-2xl font-semibold mb-4"></h3>
+                <h3 id="studentDetailName" class="text-3xl font-bold mb-4"></h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 mb-6 text-left">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 mb-6 text-left border-b pb-4 border-gray-200">
                     <div class="detail-item"><span class="detail-label">Student ID:</span> <span id="detail_student_id" class="detail-value"></span></div>
                     <div class="detail-item"><span class="detail-label">Email:</span> <span id="detail_email" class="detail-value"></span></div>
                     <div class="detail-item"><span class="detail-label">Date of Birth:</span> <span id="detail_dob" class="detail-value"></span></div>
                     <div class="detail-item"><span class="detail-label">Enrolled On:</span> <span id="detail_enrollment_date" class="detail-value"></span></div>
                 </div>
 
-                <h4 class="text-xl font-semibold text-indigo-700 mb-3">Grades and Subjects</h4>
+                <h4 class="text-2xl font-semibold text-indigo-700 mb-5 text-center">Grade Breakdown</h4>
+
+                <!-- Grade Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="grade-summary-card" id="overall_average_card">
+                        <h5>Overall Average</h5>
+                        <p id="avg_overall_score" class="average-text">--%</p>
+                    </div>
+                    <div class="grade-summary-card">
+                        <h5>Activities Average</h5>
+                        <p id="avg_activity_score" class="average-text">--%</p>
+                    </div>
+                    <div class="grade-summary-card">
+                        <h5>Quizzes Average</h5>
+                        <p id="avg_quiz_score" class="average-text">--%</p>
+                    </div>
+                    <div class="grade-summary-card">
+                        <h5>Exams Average</h5>
+                        <p id="avg_exam_score" class="average-text">--%</p>
+                    </div>
+                </div>
+
+
+                <h4 class="text-xl font-semibold text-indigo-700 mb-3 text-center">Detailed Grades</h4>
                 <div class="grades-table-container">
-                    <table class="min-w-full bg-white rounded-lg shadow-sm overflow-hidden">
+                    <table class="min-w-full bg-white rounded-lg shadow-sm">
                         <thead>
                             <tr>
-                                <th class="table-header py-2 px-3 text-sm">Subject</th>
+                                <th class="table-header py-2 px-3 text-sm">Paper</th>
                                 <th class="table-header py-2 px-3 text-sm">Type</th>
+                                <th class="table-header py-2 px-3 text-sm">Subject</th>
                                 <th class="table-header py-2 px-3 text-sm">Score</th>
+                                <th class="table-header py-2 px-3 text-sm">Percentage</th>
                                 <th class="table-header py-2 px-3 text-sm">Date</th>
                             </tr>
                         </thead>
                         <tbody id="studentGradesList">
                             <!-- Grades for the specific student will be injected here -->
                             <tr>
-                                <td colspan="4" class="text-center py-4 table-cell text-gray-500">Loading grades...</td>
+                                <td colspan="6" class="text-center py-4 table-cell text-gray-500">
+                                    <div class="loading-spinner"></div>
+                                    <p class="text-gray-600 mt-2">Loading grades...</p>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -440,18 +672,19 @@
 
         /**
          * Helper function to get the CSRF token from the DOM.
-         * Django automatically embeds this in the template if the csrf_token tag is used.
+         * In a real Django project, this would be generated by Django in the template.
+         * For local HTML file testing, you might need a dummy value.
          */
         function getCsrfToken() {
             const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-            return csrfInput ? csrfInput.value: ''; // Return empty string if not found, let Django handle validation
+            return csrfInput ? csrfInput.value : ''; // Return empty string if not found, let Django handle validation
         }
 
         // --- Utility Functions ---
 
         /**
          * Displays a temporary message box for notifications.
-         * @param {string} message—The message to display.
+         * @param {string} message - The message to display.
          * @param {boolean} isError - True if it's an error message, false for success.
          */
         function showMessageBox(message, isError = false) {
@@ -470,11 +703,19 @@
         /**
          * Fetches data from a given API endpoint.
          * @param {string} endpoint - The API endpoint (e.g., '/students/').
+         * @param {Object} params - Query parameters to append to the URL.
          * @returns {Promise<Array>} - A promise that resolves to an array of data.
          */
-        async function fetchData(endpoint) {
+        async function fetchData(endpoint, params = {}) {
+            const url = new URL(`${API_BASE_URL}${endpoint}`);
+            for (const key in params) {
+                if (params[key]) { // Only add non-empty parameters
+                    url.searchParams.append(key, params[key]);
+                }
+            }
+
             try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                const response = await fetch(url);
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(`HTTP error! Status: ${response.status} - ${JSON.stringify(errorData)}`);
@@ -501,7 +742,6 @@
             };
 
             // Add CSRF token for unsafe methods (POST, PUT, PATCH, DELETE)
-            // Django's CSRF protection is primarily for forms, but good practice for AJAX
             if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
                 headers['X-CSRFToken'] = getCsrfToken();
             }
@@ -560,9 +800,11 @@
 
         /**
          * Shows the selected section and hides others.
+         * Adds an active class to the corresponding tab button.
          * @param {string} sectionId - The ID of the section to show.
+         * @param {HTMLElement} clickedButton - The button that was clicked.
          */
-        function showSection(sectionId) {
+        function showSection(sectionId, clickedButton) {
             document.querySelectorAll('.form-section').forEach(section => {
                 section.classList.remove('active');
             });
@@ -571,17 +813,22 @@
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
-            // event is a global object in browser, currentTarget refers to the element that the event listener is attached to
-            event.currentTarget.classList.add('active');
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
 
             // Reload data when switching tabs
             if (sectionId === 'students') {
                 loadStudents();
             } else if (sectionId === 'subjects') {
                 loadSubjects();
+            } else if (sectionId === 'papers') {
+                loadPapers();
+                populatePaperSubjectDropdown(); // Populate subject dropdown for papers
             } else if (sectionId === 'grades') {
                 loadGrades();
-                populateStudentAndSubjectDropdowns(); // Ensure dropdowns are updated for grades
+                populateGradeDropdowns(); // Populate student/paper dropdowns for grades
+                populateGradeFilterDropdowns(); // Populate filter dropdowns
             }
         }
 
@@ -594,14 +841,18 @@
          */
         function openModal(callback) {
             deleteCallback = callback;
-            document.getElementById('confirmationModal').style.display = 'flex';
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('open'), 10); // Trigger transition
         }
 
         /**
          * Closes the confirmation modal.
          */
         function closeModal() {
-            document.getElementById('confirmationModal').style.display = 'none';
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 300); // Hide after transition
             deleteCallback = null;
         }
 
@@ -619,12 +870,15 @@
          */
         async function loadStudents() {
             const studentList = document.getElementById('studentList');
-            studentList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">Loading students...</td></tr>`;
+            studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell">
+                                        <div class="loading-spinner"></div>
+                                        <p class="text-gray-600 mt-2">Loading students...</p>
+                                    </td></tr>`;
             const students = await fetchData('/students/');
             studentList.innerHTML = ''; // Clear loading message
 
             if (students.length === 0) {
-                studentList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
+                studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
                 return;
             }
 
@@ -639,7 +893,7 @@
                         <td class="table-cell">
                             <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editStudent(${student.id})">Edit</button>
                             <button class="btn btn-danger text-sm px-3 py-1 mr-2" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
-                            <button class="btn btn-primary text-sm px-3 py-1" onclick="viewStudentDetails(${student.id})">View Details</button>
+                            <button class="btn btn-primary text-sm px-3 py-1" onclick="viewStudentDetails(${student.id})">Details</button>
                         </td>
                     </tr>
                 `;
@@ -725,12 +979,15 @@
          */
         async function loadSubjects() {
             const subjectList = document.getElementById('subjectList');
-            subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell">Loading subjects...</td></tr>`;
+            subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell">
+                                        <div class="loading-spinner"></div>
+                                        <p class="text-gray-600 mt-2">Loading subjects...</p>
+                                    </td></tr>`;
             const subjects = await fetchData('/subjects/');
             subjectList.innerHTML = ''; // Clear loading message
 
             if (subjects.length === 0) {
-                subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
+                subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
                 return;
             }
 
@@ -815,29 +1072,232 @@
             }
         }
 
+        // --- Paper Management (New Section) ---
+
+        /**
+         * Populates the subject dropdown in the paper form.
+         */
+        async function populatePaperSubjectDropdown() {
+            const subjectSelect = document.getElementById('paper_subject');
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>'; // Clear previous options
+            const subjects = await fetchData('/subjects/');
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = `${subject.name} (${subject.code})`;
+                subjectSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Loads and displays all papers from the API.
+         */
+        async function loadPapers() {
+            const paperList = document.getElementById('paperList');
+            paperList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell">
+                                        <div class="loading-spinner"></div>
+                                        <p class="text-gray-600 mt-2">Loading papers...</p>
+                                    </td></tr>`;
+            const papers = await fetchData('/papers/');
+            paperList.innerHTML = ''; // Clear loading message
+
+            if (papers.length === 0) {
+                paperList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No papers found. Add one above!</td></tr>`;
+                return;
+            }
+
+            papers.forEach(paper => {
+                const row = `
+                    <tr class="table-row">
+                        <td class="table-cell font-semibold">${paper.name}</td>
+                        <td class="table-cell">${paper.paper_type.charAt(0).toUpperCase() + paper.paper_type.slice(1)}</td>
+                        <td class="table-cell">${paper.subject.name} (${paper.subject.code})</td>
+                        <td class="table-cell">${paper.total_score}</td>
+                        <td class="table-cell">${new Date(paper.date_assigned).toLocaleDateString()}</td>
+                        <td class="table-cell">
+                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editPaper(${paper.id})">Edit</button>
+                            <button class="btn btn-danger text-sm px-3 py-1" onclick="openModal(() => deletePaper(${paper.id}))">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                paperList.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        /**
+         * Handles paper form submission (add/update).
+         * @param {Event} event - The form submission event.
+         */
+        document.getElementById('paperForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const paperId = document.getElementById('paperId').value;
+            const paperData = {
+                name: document.getElementById('paper_name').value,
+                paper_type: document.getElementById('paper_type').value,
+                subject_id: parseInt(document.getElementById('paper_subject').value),
+                total_score: parseFloat(document.getElementById('paper_total_score').value),
+            };
+
+            try {
+                if (paperId) {
+                    await sendData(`/papers/${paperId}/`, 'PUT', paperData);
+                    showMessageBox('Paper updated successfully!', false);
+                } else {
+                    await sendData('/papers/', 'POST', paperData);
+                    showMessageBox('Paper added successfully!', false);
+                }
+                clearPaperForm();
+                loadPapers();
+            } catch (error) {
+                // Error handled by sendData
+            }
+        });
+
+        /**
+         * Populates the paper form for editing.
+         * @param {number} id - The ID of the paper to edit.
+         */
+        async function editPaper(id) {
+            const paper = await fetchData(`/papers/${id}/`);
+            if (paper) {
+                document.getElementById('paperId').value = paper.id;
+                document.getElementById('paper_name').value = paper.name;
+                document.getElementById('paper_type').value = paper.paper_type;
+                // Ensure subject dropdown is populated BEFORE setting selected value
+                await populatePaperSubjectDropdown();
+                document.getElementById('paper_subject').value = paper.subject.id;
+                document.getElementById('paper_total_score').value = paper.total_score;
+                showMessageBox(`Editing paper: ${paper.name}`);
+            }
+        }
+
+        /**
+         * Clears the paper form.
+         */
+        function clearPaperForm() {
+            document.getElementById('paperId').value = '';
+            document.getElementById('paperForm').reset();
+            document.getElementById('paper_subject').value = ''; // Reset dropdown
+            showMessageBox('Paper form cleared.');
+        }
+
+        /**
+         * Deletes a paper.
+         * @param {number} id - The ID of the paper to delete.
+         */
+        async function deletePaper(id) {
+            try {
+                await deleteData(`/papers/${id}/`);
+                loadPapers();
+            } catch (error) {
+                // Error handled by deleteData
+            }
+        }
+
         // --- Grade Management ---
 
         /**
-         * Loads and displays all grades from the API.
+         * Populates the student and paper dropdowns in the grade form.
+         */
+        async function populateGradeDropdowns() {
+            const studentSelect = document.getElementById('grade_student');
+            const paperSelect = document.getElementById('grade_paper');
+
+            // Clear previous options
+            studentSelect.innerHTML = '<option value="">Select Student</option>';
+            paperSelect.innerHTML = '<option value="">Select Paper</option>';
+
+            const students = await fetchData('/students/');
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.full_name;
+                studentSelect.appendChild(option);
+            });
+
+            const papers = await fetchData('/papers/');
+            papers.forEach(paper => {
+                const option = document.createElement('option');
+                option.value = paper.id;
+                option.textContent = `${paper.name} (${paper.subject.code} - ${paper.paper_type.charAt(0).toUpperCase() + paper.paper_type.slice(1)}) [Max: ${paper.total_score}]`;
+                paperSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Populates the student and subject filter dropdowns in the grade section.
+         */
+        async function populateGradeFilterDropdowns() {
+            const filterStudentSelect = document.getElementById('filter_student');
+            const filterSubjectSelect = document.getElementById('filter_subject');
+
+            // Store current selected values to re-select after repopulating
+            const currentStudentFilter = filterStudentSelect.value;
+            const currentSubjectFilter = filterSubjectSelect.value;
+
+            filterStudentSelect.innerHTML = '<option value="">All Students</option>';
+            filterSubjectSelect.innerHTML = '<option value="">All Subjects</option>';
+
+            const students = await fetchData('/students/');
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.full_name;
+                filterStudentSelect.appendChild(option);
+            });
+
+            const subjects = await fetchData('/subjects/');
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = `${subject.name} (${subject.code})`;
+                filterSubjectSelect.appendChild(option);
+            });
+
+            // Restore previous selections
+            filterStudentSelect.value = currentStudentFilter;
+            filterSubjectSelect.value = currentSubjectFilter;
+        }
+
+
+        /**
+         * Loads and displays all grades from the API, with optional filters.
          */
         async function loadGrades() {
             const gradeList = document.getElementById('gradeList');
-            gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">Loading grades...</td></tr>`;
-            const grades = await fetchData('/grades/');
+            gradeList.innerHTML = `<tr><td colspan="8" class="text-center py-6 table-cell">
+                                        <div class="loading-spinner"></div>
+                                        <p class="text-gray-600 mt-2">Loading grades...</p>
+                                    </td></tr>`;
+
+            const studentIdFilter = document.getElementById('filter_student').value;
+            const subjectIdFilter = document.getElementById('filter_subject').value;
+            const gradeTypeFilter = document.getElementById('filter_grade_type').value;
+
+            const params = {
+                student_id: studentIdFilter,
+                subject_id: subjectIdFilter,
+                grade_type: gradeTypeFilter
+            };
+
+            const grades = await fetchData('/grades/', params);
             gradeList.innerHTML = ''; // Clear loading message
 
             if (grades.length === 0) {
-                gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
+                gradeList.innerHTML = `<tr><td colspan="8" class="text-center py-6 table-cell text-gray-500">No grades found with the current filters.</td></tr>`;
                 return;
             }
 
             grades.forEach(grade => {
+                const percentage = (grade.score / grade.paper.total_score * 100).toFixed(2);
                 const row = `
                     <tr class="table-row">
                         <td class="table-cell">${grade.student.full_name || 'N/A'}</td>
-                        <td class="table-cell">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
-                        <td class="table-cell">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
-                        <td class="table-cell font-semibold">${grade.score}</td>
+                        <td class="table-cell font-semibold">${grade.paper.name || 'N/A'}</td>
+                        <td class="table-cell">${grade.paper.paper_type.charAt(0).toUpperCase() + grade.paper.paper_type.slice(1)}</td>
+                        <td class="table-cell">${grade.paper.subject.name || 'N/A'} (${grade.paper.subject.code || 'N/A'})</td>
+                        <td class="table-cell">${grade.score}/${grade.paper.total_score}</td>
+                        <td class="table-cell text-indigo-700 font-bold">${percentage}%</td>
                         <td class="table-cell">${new Date(grade.date_recorded).toLocaleDateString()}</td>
                         <td class="table-cell">
                             <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editGrade(${grade.id})">Edit</button>
@@ -850,34 +1310,6 @@
         }
 
         /**
-         * Populates the student and subject dropdowns in the grade form.
-         */
-        async function populateStudentAndSubjectDropdowns() {
-            const studentSelect = document.getElementById('grade_student');
-            const subjectSelect = document.getElementById('grade_subject');
-
-            // Clear previous options
-            studentSelect.innerHTML = '<option value="">Select Student</option>';
-            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-
-            const students = await fetchData('/students/');
-            students.forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id;
-                option.textContent = student.full_name;
-                studentSelect.appendChild(option);
-            });
-
-            const subjects = await fetchData('/subjects/');
-            subjects.forEach(subject => {
-                const option = document.createElement('option');
-                option.value = subject.id;
-                option.textContent = `${subject.name} (${subject.code})`;
-                subjectSelect.appendChild(option);
-            });
-        }
-
-        /**
          * Handles grade form submission (add/update).
          * @param {Event} event - The form submission event.
          */
@@ -886,8 +1318,7 @@
             const gradeId = document.getElementById('gradeId').value;
             const gradeData = {
                 student_id: parseInt(document.getElementById('grade_student').value),
-                subject_id: parseInt(document.getElementById('grade_subject').value),
-                grade_type: document.getElementById('grade_type').value,
+                paper_id: parseInt(document.getElementById('grade_paper').value),
                 score: parseFloat(document.getElementById('grade_score').value),
                 notes: document.getElementById('grade_notes').value,
             };
@@ -916,13 +1347,12 @@
             if (grade) {
                 document.getElementById('gradeId').value = grade.id;
                 // Ensure dropdowns are populated BEFORE setting selected values
-                await populateStudentAndSubjectDropdowns();
+                await populateGradeDropdowns();
                 document.getElementById('grade_student').value = grade.student.id;
-                document.getElementById('grade_subject').value = grade.subject.id;
-                document.getElementById('grade_type').value = grade.grade_type;
+                document.getElementById('grade_paper').value = grade.paper.id;
                 document.getElementById('grade_score').value = grade.score;
                 document.getElementById('grade_notes').value = grade.notes;
-                showMessageBox(`Editing grade for ${grade.student.full_name} in ${grade.subject.name}`);
+                showMessageBox(`Editing grade for ${grade.student.full_name} on ${grade.paper.name}`);
             }
         }
 
@@ -934,8 +1364,7 @@
             document.getElementById('gradeForm').reset();
             // Reset dropdowns to default option
             document.getElementById('grade_student').value = '';
-            document.getElementById('grade_subject').value = '';
-            document.getElementById('grade_type').value = '';
+            document.getElementById('grade_paper').value = '';
             showMessageBox('Grade form cleared.');
         }
 
@@ -967,11 +1396,20 @@
             const detailEnrollmentDate = document.getElementById('detail_enrollment_date');
             const studentGradesList = document.getElementById('studentGradesList');
 
+            // Reset summary scores
+            document.getElementById('avg_activity_score').textContent = '--%';
+            document.getElementById('avg_quiz_score').textContent = '--%';
+            document.getElementById('avg_exam_score').textContent = '--%';
+            document.getElementById('avg_overall_score').textContent = '--%'; // Reset overall average
+
             // Show loading message for grades
-            studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell">Loading grades...</td></tr>`;
+            studentGradesList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">
+                                                <div class="loading-spinner"></div>
+                                                <p class="text-gray-600 mt-2">Loading grades...</p>
+                                            </td></tr>`;
 
             const student = await fetchData(`/students/${studentId}/`);
-            const allGrades = await fetchData('/grades/'); // Fetch all grades
+            const studentGrades = await fetchData('/grades/', { student_id: studentId }); // Filter grades for this student
 
             if (student) {
                 studentDetailName.textContent = `${student.full_name}'s Details`;
@@ -980,28 +1418,80 @@
                 detailDob.textContent = student.date_of_birth || 'N/A';
                 detailEnrollmentDate.textContent = new Date(student.enrollment_date).toLocaleDateString();
 
-                // Filter grades for the specific student
-                const studentGrades = allGrades.filter(grade => grade.student.id === studentId);
-
                 studentGradesList.innerHTML = ''; // Clear loading message
 
                 if (studentGrades.length === 0) {
-                    studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
+                    studentGradesList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
                 } else {
+                    // Calculate averages for breakdown
+                    const gradeSummary = {
+                        activity: { totalScore: 0, totalPossible: 0, count: 0 },
+                        quiz: { totalScore: 0, totalPossible: 0, count: 0 },
+                        exam: { totalScore: 0, totalPossible: 0, count: 0 },
+                    };
+                    let overallTotalScore = 0;
+                    let overallTotalPossible = 0;
+
                     studentGrades.forEach(grade => {
+                        const percentage = (grade.score / grade.paper.total_score * 100).toFixed(2);
                         const row = `
                             <tr class="table-row">
-                                <td class="table-cell text-sm py-2 px-3">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
-                                <td class="table-cell text-sm py-2 px-3">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
-                                <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}</td>
+                                <td class="table-cell text-sm py-2 px-3">${grade.paper.name || 'N/A'}</td>
+                                <td class="table-cell text-sm py-2 px-3">${grade.paper.paper_type.charAt(0).toUpperCase() + grade.paper.paper_type.slice(1)}</td>
+                                <td class="table-cell text-sm py-2 px-3">${grade.paper.subject.name || 'N/A'} (${grade.paper.subject.code || 'N/A'})</td>
+                                <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}/${grade.paper.total_score}</td>
+                                <td class="table-cell text-sm py-2 px-3 font-semibold text-indigo-700">${percentage}%</td>
                                 <td class="table-cell text-sm py-2 px-3">${new Date(grade.date_recorded).toLocaleDateString()}</td>
                             </tr>
                         `;
                         studentGradesList.insertAdjacentHTML('beforeend', row);
+
+                        // Aggregate scores for type summary
+                        const type = grade.paper.paper_type;
+                        if (gradeSummary[type]) {
+                            gradeSummary[type].totalScore += parseFloat(grade.score);
+                            gradeSummary[type].totalPossible += parseFloat(grade.paper.total_score);
+                            gradeSummary[type].count += 1;
+                        }
+
+                        // Aggregate scores for overall summary
+                        overallTotalScore += parseFloat(grade.score);
+                        overallTotalPossible += parseFloat(grade.paper.total_score);
                     });
+
+                    // Update type summary cards
+                    for (const type in gradeSummary) {
+                        const summary = gradeSummary[type];
+                        if (summary.count > 0) {
+                            const averagePercentage = (summary.totalScore / summary.totalPossible * 100).toFixed(2);
+                            const element = document.getElementById(`avg_${type}_score`);
+                            element.textContent = `${averagePercentage}%`;
+                            element.classList.remove('average-text'); // Remove default text style
+                            element.classList.add('text-3xl', 'font-bold'); // Add large score style
+                        } else {
+                            document.getElementById(`avg_${type}_score`).textContent = '--%';
+                            const element = document.getElementById(`avg_${type}_score`);
+                            element.classList.add('average-text'); // Ensure default style if no grades
+                            element.classList.remove('text-3xl', 'font-bold');
+                        }
+                    }
+
+                    // Update overall average card
+                    const overallAverageElement = document.getElementById('avg_overall_score');
+                    if (overallTotalPossible > 0) {
+                        const overallAveragePercentage = (overallTotalScore / overallTotalPossible * 100).toFixed(2);
+                        overallAverageElement.textContent = `${overallAveragePercentage}%`;
+                        overallAverageElement.classList.remove('average-text');
+                        overallAverageElement.classList.add('text-3xl', 'font-bold');
+                    } else {
+                        overallAverageElement.textContent = '--%';
+                        overallAverageElement.classList.add('average-text');
+                        overallAverageElement.classList.remove('text-3xl', 'font-bold');
+                    }
                 }
 
                 studentDetailModal.style.display = 'flex'; // Show the modal
+                setTimeout(() => studentDetailModal.classList.add('open'), 10); // Trigger transition
             } else {
                 showMessageBox('Failed to load student details.', true);
             }
@@ -1011,15 +1501,19 @@
          * Closes the student detail modal.
          */
         function closeStudentDetailModal() {
-            document.getElementById('studentDetailModal').style.display = 'none';
+            const modal = document.getElementById('studentDetailModal');
+            modal.classList.remove('open');
+            setTimeout(() => modal.style.display = 'none', 300); // Hide after transition
         }
 
 
         // --- Initial Load ---
-        // Load students and subjects when the page loads, and then hide the loading message for the first active tab.
+        // Load data when the page loads.
         window.onload = () => {
             loadStudents(); // Load initial data for the default active tab (Students)
-            populateStudentAndSubjectDropdowns(); // Also load these for the Grades tab's dropdowns
+            // Initial population for grade form and filters
+            populateGradeDropdowns();
+            populateGradeFilterDropdowns();
         };
     </script>
 </body>

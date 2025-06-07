@@ -4,8 +4,8 @@
 # for a model, abstracting common CRUD operations.
 
 from rest_framework import viewsets
-from .models import Student, Subject, Grade
-from .serializers import StudentSerializer, SubjectSerializer, GradeSerializer
+from .models import Student, Subject, Paper, Grade
+from .serializers import StudentSerializer, SubjectSerializer, PaperSerializer, GradeSerializer
 from rest_framework import permissions # For setting permissions
 from rest_framework.filters import SearchFilter # For adding search capabilities
 
@@ -39,25 +39,59 @@ class SubjectViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'code']
 
 
+class PaperViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for viewing and editing paper instances (activities, quizzes, exams).
+    Provides full CRUD operations for Paper objects.
+    Includes search functionality by name, paper_type, and subject.
+    """
+    queryset = Paper.objects.all().select_related('subject') # Optimize with select_related for subject
+    serializer_class = PaperSerializer
+    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    filter_backends = [SearchFilter]
+    search_fields = ['name', 'paper_type', 'subject__name', 'subject__code']
+
+    def get_queryset(self):
+        # Allow filtering by subject_id or paper_type
+        queryset = super().get_queryset()
+        subject_id_param = self.request.query_params.get('subject_id', None)
+        paper_type_param = self.request.query_params.get('paper_type', None)
+
+        if subject_id_param is not None:
+            queryset = queryset.filter(subject__id=subject_id_param)
+        if paper_type_param is not None:
+            queryset = queryset.filter(paper_type=paper_type_param)
+
+        return queryset
+
+
 class GradeViewSet(viewsets.ModelViewSet):
     """
     A ViewSet for viewing and editing grade instances.
     Provides full CRUD operations for Grade objects.
     """
-    queryset = Grade.objects.all()
+    # Optimize with select_related for related student and paper objects
+    queryset = Grade.objects.all().select_related('student', 'paper__subject')
     serializer_class = GradeSerializer
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    # You can add custom filtering if needed, e.g., to filter grades by student or subject
-    # This example demonstrates filtering by student_id from query parameters.
+    # Allow filtering by student_id or paper_id (which implies subject and type)
     def get_queryset(self):
-        queryset = Grade.objects.all().select_related('student', 'subject') # Optimize with select_related
+        queryset = super().get_queryset()
         student_id_param = self.request.query_params.get('student_id', None)
-        subject_id_param = self.request.query_params.get('subject_id', None)
+        paper_id_param = self.request.query_params.get('paper_id', None)
+        subject_id_param = self.request.query_params.get('subject_id', None) # Filter by subject of the paper
+        grade_type_param = self.request.query_params.get('grade_type', None) # Filter by type of the paper
 
         if student_id_param is not None:
-            queryset = queryset.filter(student__id=student_id_param) # Filter by student's primary key
+            queryset = queryset.filter(student__id=student_id_param)
+        if paper_id_param is not None:
+            queryset = queryset.filter(paper__id=paper_id_param)
         if subject_id_param is not None:
-            queryset = queryset.filter(subject__id=subject_id_param) # Filter by subject's primary key
+            queryset = queryset.filter(paper__subject__id=subject_id_param)
+        if grade_type_param is not None:
+            queryset = queryset.filter(paper__paper_type=grade_type_param)
 
         return queryset
+
