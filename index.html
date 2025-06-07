@@ -418,52 +418,6 @@
             background-color: #c7d2fe; /* Indigo 200 */
             font-weight: 600;
         }
-
-        /* Loading Overlay Styles */
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.85); /* Slightly less opaque white overlay */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000; /* Higher than modals */
-            opacity: 0;
-            visibility: hidden; /* Start hidden for smooth transition */
-            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-        }
-        #loadingOverlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-        .loading-spinner {
-            border: 6px solid #e0e7ff; /* Light indigo */
-            border-top: 6px solid #4f46e5; /* Indigo */
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1.5rem;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loading-message {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            text-align: center;
-        }
-        .loading-subtext {
-            font-size: 0.9rem;
-            color: #6b7280; /* Gray 500 */
-            margin-top: 0.5rem;
-        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -509,13 +463,9 @@
                     <label for="email" class="block text-sm font-semibold text-gray-800 mb-2">Email</label>
                     <input type="email" id="email" class="input-field" placeholder="john.doe@example.com" required>
                 </div>
-                <div>
+                <div class="col-span-1 md:col-span-2"> <!-- Date of Birth takes full width on small screens, half on larger -->
                     <label for="date_of_birth" class="block text-sm font-semibold text-gray-800 mb-2">Date of Birth</label>
                     <input type="date" id="date_of_birth" class="input-field">
-                </div>
-                <div>
-                    <label for="enrollment_date_input" class="block text-sm font-semibold text-gray-800 mb-2">Enrolled On</label>
-                    <input type="date" id="enrollment_date_input" class="input-field">
                 </div>
                 <div class="md:col-span-2 flex justify-end space-x-4 pt-4">
                     <button type="button" class="btn btn-secondary" onclick="clearStudentForm()">Clear Form</button>
@@ -795,13 +745,6 @@
             </div>
         </div>
 
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay">
-            <div class="loading-spinner"></div>
-            <div class="loading-message">Loading data...</div>
-            <div class="loading-subtext">Please wait 20-60 seconds, data is rendering.</div>
-        </div>
-
     </div>
 
     <script>
@@ -823,23 +766,6 @@
             const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
             return csrfInput ? csrfInput.value : ''; // Return empty string if not found, let Django handle validation
         }
-
-        // --- Loading Overlay Functions ---
-
-        /**
-         * Shows the loading overlay.
-         */
-        function showLoadingOverlay() {
-            document.getElementById('loadingOverlay').classList.add('show');
-        }
-
-        /**
-         * Hides the loading overlay.
-         */
-        function hideLoadingOverlay() {
-            document.getElementById('loadingOverlay').classList.remove('show');
-        }
-
 
         // --- Utility Functions ---
 
@@ -1031,45 +957,40 @@
          * Loads and displays all students from the API.
          */
         async function loadStudents() {
-            showLoadingOverlay(); // Show loading indicator
             const studentList = document.getElementById('studentList');
             studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading students...</td></tr>`;
-            try {
-                allStudents = await fetchData('/students/'); // Store fetched students globally
-                studentList.innerHTML = ''; // Clear loading message
+            allStudents = await fetchData('/students/'); // Store fetched students globally
+            studentList.innerHTML = ''; // Clear loading message
 
-                if (allStudents.length === 0) {
-                    studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
-                    return;
-                }
-
-                allStudents.forEach(student => {
-                    const row = document.createElement('tr');
-                    row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
-                    row.innerHTML = `
-                        <td class="table-cell font-semibold">${student.student_id}</td>
-                        <td class="table-cell">${student.full_name}</td>
-                        <td class="table-cell">${student.email}</td>
-                        <td class="table-cell">${student.date_of_birth || 'N/A'}</td>
-                        <td class="table-cell">${student.enrollment_date || 'N/A'}</td>
-                        <td class="table-cell text-right">
-                            <div class="table-actions">
-                                <button class="btn btn-secondary text-sm" onclick="editStudent(${student.id})">Edit</button>
-                                <button class="btn btn-primary text-sm" onclick="viewStudentDetails(${student.id})">Details</button>
-                                <button class="btn btn-danger text-sm" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
-                            </div>
-                        </td>
-                    `;
-                    studentList.appendChild(row);
-                    // Trigger fade-in animation
-                    setTimeout(() => {
-                        row.classList.remove('opacity-0', 'translate-y-4');
-                        row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
-                    }, 50); // Small staggered delay for each row
-                });
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator regardless of success or failure
+            if (allStudents.length === 0) {
+                studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
+                return;
             }
+
+            allStudents.forEach(student => {
+                const row = document.createElement('tr');
+                row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
+                row.innerHTML = `
+                    <td class="table-cell font-semibold">${student.student_id}</td>
+                    <td class="table-cell">${student.full_name}</td>
+                    <td class="table-cell">${student.email}</td>
+                    <td class="table-cell">${student.date_of_birth || 'N/A'}</td>
+                    <td class="table-cell">${new Date(student.enrollment_date).toLocaleDateString()}</td>
+                    <td class="table-cell text-right">
+                        <div class="table-actions">
+                            <button class="btn btn-secondary text-sm" onclick="editStudent(${student.id})">Edit</button>
+                            <button class="btn btn-primary text-sm" onclick="viewStudentDetails(${student.id})">Details</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
+                        </div>
+                    </td>
+                `;
+                studentList.appendChild(row);
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    row.classList.remove('opacity-0', 'translate-y-4');
+                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                }, 50); // Small staggered delay for each row
+            });
         }
 
         /**
@@ -1085,10 +1006,8 @@
                 last_name: document.getElementById('last_name').value,
                 email: document.getElementById('email').value,
                 date_of_birth: document.getElementById('date_of_birth').value || null, // Send null if empty
-                enrollment_date: document.getElementById('enrollment_date_input').value || null, // Get value from new input
             };
 
-            showLoadingOverlay(); // Show loading indicator
             try {
                 if (studentId) {
                     // Update existing student
@@ -1100,15 +1019,13 @@
                     showMessageBox('Student added successfully!', false);
                 }
                 clearStudentForm();
-                await loadStudents(); // Reload the list
+                loadStudents(); // Reload the list
                 // Re-load grades summary if student data might affect ranks/averages
                 if (document.getElementById('grades').classList.contains('active')) {
-                    loadGradesAndSummary(); // No await here, let it run in parallel
+                    loadGradesAndSummary();
                 }
             } catch (error) {
                 // Error already handled by sendData function, just prevent further actions
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
             }
         });
 
@@ -1125,7 +1042,6 @@
                 document.getElementById('last_name').value = student.last_name;
                 document.getElementById('email').value = student.email;
                 document.getElementById('date_of_birth').value = student.date_of_birth;
-                document.getElementById('enrollment_date_input').value = student.enrollment_date; // Set value for new input
                 showMessageBox(`Editing student: ${student.full_name}`);
                 document.getElementById('student_id').focus(); // Bring focus to the form
             }
@@ -1137,7 +1053,6 @@
         function clearStudentForm() {
             document.getElementById('studentId').value = '';
             document.getElementById('studentForm').reset();
-            document.getElementById('enrollment_date_input').value = ''; // Clear new input
             showMessageBox('Student form cleared.');
         }
 
@@ -1146,19 +1061,16 @@
          * @param {number} id - The ID of the student to delete.
          */
         async function deleteStudent(id) {
-            showLoadingOverlay(); // Show loading indicator
             try {
                 await deleteData(`/students/${id}/`);
-                await loadStudents(); // Reload the list
+                loadStudents(); // Reload the list
                 // Re-load grades summary if student data might affect ranks/averages
                 if (document.getElementById('grades').classList.contains('active')) {
-                    loadGradesAndSummary(); // No await here, let it run in parallel
+                    loadGradesAndSummary();
                 }
             }
             catch (error) {
                 // Error already handled by deleteData function
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
             }
         }
 
@@ -1168,41 +1080,36 @@
          * Loads and displays all subjects from the API.
          */
         async function loadSubjects() {
-            showLoadingOverlay(); // Show loading indicator
             const subjectList = document.getElementById('subjectList');
             subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">Loading subjects...</td></tr>`;
-            try {
-                allSubjects = await fetchData('/subjects/'); // Store subjects globally
-                subjectList.innerHTML = ''; // Clear loading message
+            allSubjects = await fetchData('/subjects/'); // Store subjects globally
+            subjectList.innerHTML = ''; // Clear loading message
 
-                if (allSubjects.length === 0) {
-                    subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
-                    return;
-                }
-
-                allSubjects.forEach(subject => {
-                    const row = document.createElement('tr');
-                    row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
-                    row.innerHTML = `
-                        <td class="table-cell font-semibold">${subject.code}</td>
-                        <td class="table-cell">${subject.name}</td>
-                        <td class="table-cell">${subject.description || 'N/A'}</td>
-                        <td class="table-cell text-right">
-                            <div class="table-actions">
-                                <button class="btn btn-secondary text-sm" onclick="editSubject(${subject.id})">Edit</button>
-                                <button class="btn btn-danger text-sm" onclick="openModal(() => deleteSubject(${subject.id}))">Delete</button>
-                            </div>
-                        </td>
-                    `;
-                    subjectList.appendChild(row);
-                    setTimeout(() => {
-                        row.classList.remove('opacity-0', 'translate-y-4');
-                        row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
-                    }, 50);
-                });
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
+            if (allSubjects.length === 0) {
+                subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
+                return;
             }
+
+            allSubjects.forEach(subject => {
+                const row = document.createElement('tr');
+                row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
+                row.innerHTML = `
+                    <td class="table-cell font-semibold">${subject.code}</td>
+                    <td class="table-cell">${subject.name}</td>
+                    <td class="table-cell">${subject.description || 'N/A'}</td>
+                    <td class="table-cell text-right">
+                        <div class="table-actions">
+                            <button class="btn btn-secondary text-sm" onclick="editSubject(${subject.id})">Edit</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteSubject(${subject.id}))">Delete</button>
+                        </div>
+                    </td>
+                `;
+                subjectList.appendChild(row);
+                setTimeout(() => {
+                    row.classList.remove('opacity-0', 'translate-y-4');
+                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                }, 50);
+            });
         }
 
         /**
@@ -1218,7 +1125,6 @@
                 description: document.getElementById('subject_description').value,
             };
 
-            showLoadingOverlay(); // Show loading indicator
             try {
                 if (subjectId) {
                     await sendData(`/subjects/${subjectId}/`, 'PUT', subjectData);
@@ -1228,17 +1134,15 @@
                     showMessageBox('Subject added successfully!', false);
                 }
                 clearSubjectForm();
-                await loadSubjects();
+                loadSubjects();
                 // Re-populate dropdowns if subject data changes
                 if (document.getElementById('grades').classList.contains('active')) {
                     populateGradeFormDropdowns(); // Update grade form dropdowns
                     populateFilterDropdowns(); // Update filter dropdowns
-                    loadGradesAndSummary(); // Refresh summary if subject data impacts grades display (no await)
+                    loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
                 }
             } catch (error) {
                 // Error handled by sendData
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
             }
         });
 
@@ -1272,20 +1176,17 @@
          * @param {number} id - The ID of the subject to delete.
          */
         async function deleteSubject(id) {
-            showLoadingOverlay(); // Show loading indicator
             try {
                 await deleteData(`/subjects/${id}/`);
-                await loadSubjects();
+                loadSubjects();
                 // Re-populate dropdowns if subject data changes
                 if (document.getElementById('grades').classList.contains('active')) {
                     populateGradeFormDropdowns(); // Update grade form dropdowns
                     populateFilterDropdowns(); // Update filter dropdowns
-                    loadGradesAndSummary(); // Refresh summary if subject data impacts grades display (no await)
+                    loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
                 }
             } catch (error) {
                 // Error handled by deleteData
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
             }
         }
 
@@ -1296,7 +1197,6 @@
          * and populates the student filter dropdown and pass/fail counts.
          */
         async function loadGradesAndSummary() {
-            showLoadingOverlay(); // Show loading indicator
             const gradeList = document.getElementById('gradeList');
             const allGradesAverageElement = document.getElementById('allGradesAverage');
             const studentFilterDropdown = document.getElementById('studentGradeFilter');
@@ -1314,77 +1214,73 @@
             studentFilterDropdown.innerHTML = '<option value="all">Loading Students...</option>';
             gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading grades...</td></tr>`;
 
-            try {
-                // Fetch and store all data
-                allStudents = await fetchData('/students/');
-                allSubjects = await fetchData('/subjects/');
-                allGrades = await fetchData('/grades/');
+            // Fetch and store all data
+            allStudents = await fetchData('/students/');
+            allSubjects = await fetchData('/subjects/');
+            allGrades = await fetchData('/grades/');
 
-                // Populate the student filter dropdown in Grades section
-                studentFilterDropdown.innerHTML = '<option value="all">All Students (Overall Average)</option>';
-                allStudents.sort((a, b) => a.full_name.localeCompare(b.full_name));
-                allStudents.forEach(student => {
-                    const option = document.createElement('option');
-                    option.value = student.id;
-                    option.textContent = student.full_name;
-                    studentFilterDropdown.appendChild(option);
-                });
-                studentFilterDropdown.onchange = () => updateGradesSummary(studentFilterDropdown.value); // Re-attach event listener
-
-
-                // Populate the filter dropdowns within the form
-                populateFilterDropdowns();
-                // Populate the grade form dropdowns (student/subject)
-                populateGradeFormDropdowns();
+            // Populate the student filter dropdown in Grades section
+            studentFilterDropdown.innerHTML = '<option value="all">All Students (Overall Average)</option>';
+            allStudents.sort((a, b) => a.full_name.localeCompare(b.full_name));
+            allStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.full_name;
+                studentFilterDropdown.appendChild(option);
+            });
+            studentFilterDropdown.onchange = () => updateGradesSummary(studentFilterDropdown.value); // Re-attach event listener
 
 
-                if (allGrades.length === 0) {
-                    gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
-                    allGradesAverageElement.textContent = 'N/A';
-                    passFailStatusElement.textContent = '';
-                    passedStudentsCountElement.textContent = '0';
-                    failedStudentsCountElement.textContent = '0';
-                    studentFilterDropdown.innerHTML = '<option value="all">No grades to display</option>';
-                    // Clear the grade form dropdowns as well
-                    document.getElementById('grade_student_search_input').value = '';
-                    document.getElementById('grade_student_id').value = '';
-                    document.getElementById('grade_subject_search_input').value = '';
-                    document.getElementById('grade_subject_id').value = '';
-                    document.getElementById('grade_type').value = '';
-                    return;
-                }
+            // Populate the filter dropdowns within the form
+            populateFilterDropdowns();
+            // Populate the grade form dropdowns (student/subject)
+            populateGradeFormDropdowns();
 
-                // Calculate and display overall pass/fail counts for all students
-                let passedStudents = 0;
-                let failedStudents = 0;
-                const studentOverallAverages = {};
 
-                allStudents.forEach(student => {
-                    const studentGrades = allGrades.filter(grade => grade.student.id === student.id);
-                    if (studentGrades.length > 0) {
-                        const totalScore = studentGrades.reduce((sum, grade) => sum + parseFloat(grade.score), 0);
-                        const average = totalScore / studentGrades.length;
-                        studentOverallAverages[student.id] = average;
-
-                        if (average >= PASSING_THRESHOLD) {
-                            passedStudents++;
-                        } else {
-                            failedStudents++;
-                        }
-                    }
-                });
-
-                passedStudentsCountElement.textContent = passedStudents;
-                failedStudentsCountElement.textContent = failedStudents;
-
-                // Trigger initial update of the specific student average card (defaults to 'all')
-                updateGradesSummary(studentFilterDropdown.value);
-
-                // Apply filters and populate the main grades table
-                filterGradesTable();
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
+            if (allGrades.length === 0) {
+                gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
+                allGradesAverageElement.textContent = 'N/A';
+                passFailStatusElement.textContent = '';
+                passedStudentsCountElement.textContent = '0';
+                failedStudentsCountElement.textContent = '0';
+                studentFilterDropdown.innerHTML = '<option value="all">No grades to display</option>';
+                // Clear the grade form dropdowns as well
+                document.getElementById('grade_student_search_input').value = '';
+                document.getElementById('grade_student_id').value = '';
+                document.getElementById('grade_subject_search_input').value = '';
+                document.getElementById('grade_subject_id').value = '';
+                document.getElementById('grade_type').value = '';
+                return;
             }
+
+            // Calculate and display overall pass/fail counts for all students
+            let passedStudents = 0;
+            let failedStudents = 0;
+            const studentOverallAverages = {};
+
+            allStudents.forEach(student => {
+                const studentGrades = allGrades.filter(grade => grade.student.id === student.id);
+                if (studentGrades.length > 0) {
+                    const totalScore = studentGrades.reduce((sum, grade) => sum + parseFloat(grade.score), 0);
+                    const average = totalScore / studentGrades.length;
+                    studentOverallAverages[student.id] = average;
+
+                    if (average >= PASSING_THRESHOLD) {
+                        passedStudents++;
+                    } else {
+                        failedStudents++;
+                    }
+                }
+            });
+
+            passedStudentsCountElement.textContent = passedStudents;
+            failedStudentsCountElement.textContent = failedStudents;
+
+            // Trigger initial update of the specific student average card (defaults to 'all')
+            updateGradesSummary(studentFilterDropdown.value);
+
+            // Apply filters and populate the main grades table
+            filterGradesTable();
         }
 
         /**
@@ -1721,7 +1617,7 @@
                 return;
             }
 
-            showLoadingOverlay(); // Show loading indicator
+
             try {
                 if (gradeId) {
                     await sendData(`/grades/${gradeId}/`, 'PUT', gradeData);
@@ -1731,14 +1627,12 @@
                     showMessageBox('Grade added successfully!', false);
                 }
                 clearGradeForm();
-                await loadGradesAndSummary(); // Reload grades and update summary
+                loadGradesAndSummary(); // Reload grades and update summary
                 if (currentStudentDetailId !== null) { // If student details modal is open
-                    viewStudentDetails(currentStudentDetailId); // Refresh it (no await)
+                    viewStudentDetails(currentStudentDetailId); // Refresh it
                 }
             } catch (error) {
                 // Error handled by sendData
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
             }
         });
 
@@ -1804,17 +1698,14 @@
          * @param {number} id - The ID of the grade to delete.
          */
         async function deleteGrade(id) {
-            showLoadingOverlay(); // Show loading indicator
             try {
                 await deleteData(`/grades/${id}/`);
-                await loadGradesAndSummary(); // Reload grades and update summary
+                loadGradesAndSummary(); // Reload grades and update summary
                 if (currentStudentDetailId !== null) { // If student details modal is open
-                    viewStudentDetails(currentStudentDetailId); // Refresh it (no await)
+                    viewStudentDetails(currentStudentDetailId); // Refresh it
                 }
             } catch (error) {
                 // Error handled by deleteData
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
             }
         }
 
@@ -1846,108 +1737,104 @@
             overallAverageScore.textContent = 'Calculating...';
             totalScoreValue.textContent = 'Calculating...';
 
-            showLoadingOverlay(); // Show loading indicator
-            try {
-                const student = allStudents.find(s => s.id === studentId);
-                // allGrades is already globally available and updated by loadGradesAndSummary
 
-                if (student) {
-                    studentDetailName.textContent = `${student.full_name}'s Details`;
-                    detailStudentId.textContent = student.student_id;
-                    detailEmail.textContent = student.email;
-                    detailDob.textContent = student.date_of_birth || 'N/A';
-                    detailEnrollmentDate.textContent = student.enrollment_date || 'N/A'; // Use the new enrollment_date field
+            const student = allStudents.find(s => s.id === studentId);
+            // allGrades is already globally available and updated by loadGradesAndSummary
 
-                    // Filter grades for the specific student
-                    const studentGrades = allGrades.filter(grade => grade.student.id === studentId);
+            if (student) {
+                studentDetailName.textContent = `${student.full_name}'s Details`;
+                detailStudentId.textContent = student.student_id;
+                detailEmail.textContent = student.email;
+                detailDob.textContent = student.date_of_birth || 'N/A';
+                detailEnrollmentDate.textContent = new Date(student.enrollment_date).toLocaleDateString();
 
-                    // --- Calculate and Display Grade Averages and Total Score ---
-                    let totalOverallScore = 0;
-                    let totalOverallGradesCount = 0;
-                    const subjectAverages = {};
+                // Filter grades for the specific student
+                const studentGrades = allGrades.filter(grade => grade.student.id === studentId);
 
-                    studentGrades.forEach(grade => {
-                        const subjectId = grade.subject.id;
-                        const score = parseFloat(grade.score);
+                // --- Calculate and Display Grade Averages and Total Score ---
+                let totalOverallScore = 0;
+                let totalOverallGradesCount = 0;
+                const subjectAverages = {};
 
-                        if (!subjectAverages[subjectId]) {
-                            subjectAverages[subjectId] = {
-                                totalScore: 0,
-                                count: 0,
-                                name: grade.subject.name,
-                                code: grade.subject.code
-                            };
-                        }
-                        subjectAverages[subjectId].totalScore += score;
-                        subjectAverages[subjectId].count++;
+                studentGrades.forEach(grade => {
+                    const subjectId = grade.subject.id;
+                    const score = parseFloat(grade.score);
 
-                        totalOverallScore += score;
-                        totalOverallGradesCount++;
-                    });
-
-                    // Display subject-wise averages
-                    studentGradeSummary.innerHTML = '';
-                    if (Object.keys(subjectAverages).length === 0) {
-                        studentGradeSummary.innerHTML = `<div class="grade-summary-card col-span-full text-gray-500">No grades recorded for any subject.</div>`;
-                    } else {
-                        for (const subjectId in subjectAverages) {
-                            const subjectData = subjectAverages[subjectId];
-                            const average = subjectData.count > 0 ? (subjectData.totalScore / subjectData.count).toFixed(2) : 'N/A';
-                            const card = `
-                                <div class="grade-summary-card">
-                                    <h5>${subjectData.name} (${subjectData.code})</h5>
-                                    <p>${average}</p>
-                                </div>
-                            `;
-                            studentGradeSummary.insertAdjacentHTML('beforeend', card);
-                        }
+                    if (!subjectAverages[subjectId]) {
+                        subjectAverages[subjectId] = {
+                            totalScore: 0,
+                            count: 0,
+                            name: grade.subject.name,
+                            code: grade.subject.code
+                        };
                     }
+                    subjectAverages[subjectId].totalScore += score;
+                    subjectAverages[subjectId].count++;
 
-                    // Display overall average
-                    const overallAverage = totalOverallGradesCount > 0 ? (totalOverallScore / totalOverallGradesCount).toFixed(2) : 'N/A';
-                    overallAverageScore.textContent = overallAverage;
+                    totalOverallScore += score;
+                    totalOverallGradesCount++;
+                });
 
-                    // Display total score
-                    totalScoreValue.textContent = totalOverallScore.toFixed(2);
-
-
-                    // --- Display Grades History Table (with Edit/Delete buttons) ---
-                    studentGradesList.innerHTML = '';
-                    if (studentGrades.length === 0) {
-                        studentGradesList.innerHTML = `<tr><td colspan="5" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
-                    } else {
-                        studentGrades.forEach(grade => {
-                            const row = document.createElement('tr');
-                            row.className = 'table-row opacity-0 translate-y-4';
-                            row.innerHTML = `
-                                <td class="table-cell text-sm py-2 px-3">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
-                                <td class="table-cell text-sm py-2 px-3">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
-                                <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}</td>
-                                <td class="table-cell text-sm py-2 px-3">${new Date(grade.date_recorded).toLocaleDateString()}</td>
-                                <td class="table-cell text-right">
-                                    <div class="table-actions">
-                                        <button class="btn btn-secondary text-sm" onclick="editGrade(${grade.id}, true)">Edit</button>
-                                        <button class="btn btn-danger text-sm" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
-                                    </div>
-                                </td>
-                            `;
-                            studentGradesList.appendChild(row);
-                            setTimeout(() => {
-                                row.classList.remove('opacity-0', 'translate-y-4');
-                                row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
-                            }, 50);
-                        });
-                    }
-
-                    studentDetailModal.style.display = 'flex';
-                    setTimeout(() => {
-                        studentDetailModal.classList.add('show');
-                    }, 10);
+                // Display subject-wise averages
+                studentGradeSummary.innerHTML = '';
+                if (Object.keys(subjectAverages).length === 0) {
+                    studentGradeSummary.innerHTML = `<div class="grade-summary-card col-span-full text-gray-500">No grades recorded for any subject.</div>`;
                 } else {
-                    showMessageBox('Failed to load student details.', true);
+                    for (const subjectId in subjectAverages) {
+                        const subjectData = subjectAverages[subjectId];
+                        const average = subjectData.count > 0 ? (subjectData.totalScore / subjectData.count).toFixed(2) : 'N/A';
+                        const card = `
+                            <div class="grade-summary-card">
+                                <h5>${subjectData.name} (${subjectData.code})</h5>
+                                <p>${average}</p>
+                            </div>
+                        `;
+                        studentGradeSummary.insertAdjacentHTML('beforeend', card);
+                    }
                 }
-            } finally {
-                hideLoadingOverlay(); // Hide loading indicator
+
+                // Display overall average
+                const overallAverage = totalOverallGradesCount > 0 ? (totalOverallScore / totalOverallGradesCount).toFixed(2) : 'N/A';
+                overallAverageScore.textContent = overallAverage;
+
+                // Display total score
+                totalScoreValue.textContent = totalOverallScore.toFixed(2);
+
+
+                // --- Display Grades History Table (with Edit/Delete buttons) ---
+                studentGradesList.innerHTML = '';
+                if (studentGrades.length === 0) {
+                    studentGradesList.innerHTML = `<tr><td colspan="5" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
+                } else {
+                    studentGrades.forEach(grade => {
+                        const row = document.createElement('tr');
+                        row.className = 'table-row opacity-0 translate-y-4';
+                        row.innerHTML = `
+                            <td class="table-cell text-sm py-2 px-3">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
+                            <td class="table-cell text-sm py-2 px-3">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
+                            <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}</td>
+                            <td class="table-cell text-sm py-2 px-3">${new Date(grade.date_recorded).toLocaleDateString()}</td>
+                            <td class="table-cell text-right">
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary text-sm" onclick="editGrade(${grade.id}, true)">Edit</button>
+                                    <button class="btn btn-danger text-sm" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
+                                </div>
+                            </td>
+                        `;
+                        studentGradesList.appendChild(row);
+                        setTimeout(() => {
+                            row.classList.remove('opacity-0', 'translate-y-4');
+                            row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                        }, 50);
+                    });
+                }
+
+                studentDetailModal.style.display = 'flex';
+                setTimeout(() => {
+                    studentDetailModal.classList.add('show');
+                }, 10);
+            } else {
+                showMessageBox('Failed to load student details.', true);
             }
         }
 

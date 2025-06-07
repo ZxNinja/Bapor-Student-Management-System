@@ -15,7 +15,7 @@ class Student(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    enrollment_date = models.DateField(null=True, blank=True) # MODIFIED LINE
+    enrollment_date = models.DateField(auto_now_add=True) # Automatically sets the date when student is added
 
     def __str__(self):
         """String representation of the Student object."""
