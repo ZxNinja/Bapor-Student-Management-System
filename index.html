@@ -252,6 +252,38 @@
             font-size: 0.875rem; /* text-sm */
             line-height: 1.25rem;
         }
+        /* New styles for grade summary cards */
+        .grade-summary-card {
+            background-color: #edf2f7; /* Gray 200 */
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease-in-out;
+        }
+        .grade-summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .grade-summary-card h5 {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 0.5rem;
+        }
+        .grade-summary-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+        }
+        .overall-average-card {
+            background-color: #e0e7ff; /* Indigo 100 */
+            border: 2px solid #6366f1; /* Indigo 500 border */
+            padding: 1.5rem;
+        }
+        .overall-average-card p {
+            font-size: 2rem;
+            color: #4f46e5;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -468,7 +500,17 @@
                     <div class="detail-item"><span class="detail-label">Enrolled On:</span> <span id="detail_enrollment_date" class="detail-value font-medium"></span></div>
                 </div>
 
-                <h4 class="text-2xl font-bold text-indigo-700 mb-4">Grades and Subjects</h4>
+                <!-- New: Grade Summary Section -->
+                <h4 class="text-2xl font-bold text-indigo-700 mb-4">Grade Summary</h4>
+                <div id="studentGradeSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <!-- Average grade cards will be injected here -->
+                </div>
+                <div id="overallAverageCard" class="grade-summary-card overall-average-card">
+                    <h5>Overall Average Grade</h5>
+                    <p id="overallAverageScore">N/A</p>
+                </div>
+
+                <h4 class="text-2xl font-bold text-indigo-700 mb-4 mt-8">Grades and Subjects History</h4>
                 <div class="grades-table-container">
                     <table class="min-w-full bg-white overflow-hidden">
                         <thead>
@@ -1058,7 +1100,7 @@
         // --- Student Details Modal Functions ---
 
         /**
-         * Opens the student detail modal and populates it with data.
+         * Opens the student detail modal and populates it with data, including grade averages.
          * @param {number} studentId - The ID of the student to display.
          */
         async function viewStudentDetails(studentId) {
@@ -1069,9 +1111,16 @@
             const detailDob = document.getElementById('detail_dob');
             const detailEnrollmentDate = document.getElementById('detail_enrollment_date');
             const studentGradesList = document.getElementById('studentGradesList');
+            const studentGradeSummary = document.getElementById('studentGradeSummary');
+            const overallAverageScore = document.getElementById('overallAverageScore');
 
-            // Show loading message for grades
+            // Show loading messages
             studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">Loading grades...</td></tr>`;
+            studentGradeSummary.innerHTML = `
+                <div class="grade-summary-card col-span-full text-gray-500">Loading averages...</div>
+            `;
+            overallAverageScore.textContent = 'Calculating...';
+
 
             const student = await fetchData(`/students/${studentId}/`);
             const allGrades = await fetchData('/grades/'); // Fetch all grades
@@ -1086,8 +1135,55 @@
                 // Filter grades for the specific student
                 const studentGrades = allGrades.filter(grade => grade.student.id === studentId);
 
-                studentGradesList.innerHTML = ''; // Clear loading message
+                // --- Calculate and Display Grade Averages ---
+                let totalOverallScore = 0;
+                let totalOverallGradesCount = 0;
+                const subjectAverages = {}; // { subjectId: { totalScore: X, count: Y, name: 'Subject Name' } }
 
+                studentGrades.forEach(grade => {
+                    const subjectId = grade.subject.id;
+                    const score = parseFloat(grade.score);
+
+                    if (!subjectAverages[subjectId]) {
+                        subjectAverages[subjectId] = {
+                            totalScore: 0,
+                            count: 0,
+                            name: grade.subject.name,
+                            code: grade.subject.code
+                        };
+                    }
+                    subjectAverages[subjectId].totalScore += score;
+                    subjectAverages[subjectId].count++;
+
+                    totalOverallScore += score;
+                    totalOverallGradesCount++;
+                });
+
+                // Display subject-wise averages
+                studentGradeSummary.innerHTML = ''; // Clear loading message
+                if (Object.keys(subjectAverages).length === 0) {
+                    studentGradeSummary.innerHTML = `<div class="grade-summary-card col-span-full text-gray-500">No grades recorded for any subject.</div>`;
+                } else {
+                    for (const subjectId in subjectAverages) {
+                        const subjectData = subjectAverages[subjectId];
+                        const average = subjectData.count > 0 ? (subjectData.totalScore / subjectData.count).toFixed(2) : 'N/A';
+                        const card = `
+                            <div class="grade-summary-card">
+                                <h5>${subjectData.name} (${subjectData.code})</h5>
+                                <p>${average}</p>
+                            </div>
+                        `;
+                        studentGradeSummary.insertAdjacentHTML('beforeend', card);
+                    }
+                }
+
+                // Display overall average
+                const overallAverage = totalOverallGradesCount > 0 ? (totalOverallScore / totalOverallGradesCount).toFixed(2) : 'N/A';
+                overallAverageScore.textContent = overallAverage;
+
+
+                // --- Display Grades History Table ---
+                studentGradesList.innerHTML = ''; // Clear loading message
                 if (studentGrades.length === 0) {
                     studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
                 } else {
