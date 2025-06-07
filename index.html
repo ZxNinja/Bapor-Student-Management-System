@@ -284,6 +284,60 @@
             font-size: 2rem;
             color: #4f46e5;
         }
+        /* New style for total score card */
+        .total-score-card {
+            background-color: #d1fae5; /* Green 100 */
+            border: 2px solid #34d399; /* Green 400 */
+            padding: 1.5rem;
+        }
+        .total-score-card p {
+            font-size: 2rem;
+            color: #065f46; /* Green 800 */
+        }
+        /* New style for grades section summary cards */
+        .grades-summary-section-card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .grades-summary-section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .grades-summary-section-card h5 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 0.75rem;
+        }
+        .grades-summary-section-card p {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 800;
+            color: #333;
+        }
+        /* New styling for the rank dropdown */
+        .rank-dropdown-container {
+            background-color: #e0e7ff; /* Indigo 100 */
+            border: 2px solid #6366f1; /* Indigo 500 border */
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .rank-dropdown-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .rank-dropdown-container h5 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 0.75rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -412,6 +466,21 @@
         <section id="grades" class="form-section">
             <h2 class="text-3xl font-bold mb-6 text-indigo-700">Student Grades</h2>
 
+            <!-- Summary Cards for Grades Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Rank dropdown replaces 'Total Grades Recorded' -->
+                <div class="rank-dropdown-container">
+                    <h5>Top 3 Ranked Students</h5>
+                    <select id="rankedStudentsDropdown" class="input-field mt-2">
+                        <option value="">Calculating Ranks...</option>
+                    </select>
+                </div>
+                <div class="grades-summary-section-card">
+                    <h5>Overall Average of All Grades</h5>
+                    <p id="allGradesAverage">N/A</p>
+                </div>
+            </div>
+
             <!-- Add/Edit Grade Form -->
             <form id="gradeForm" class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <input type="hidden" id="gradeId" value="">
@@ -500,14 +569,20 @@
                     <div class="detail-item"><span class="detail-label">Enrolled On:</span> <span id="detail_enrollment_date" class="detail-value font-medium"></span></div>
                 </div>
 
-                <!-- New: Grade Summary Section -->
+                <!-- Grade Summary Section (inside Student Detail Modal) -->
                 <h4 class="text-2xl font-bold text-indigo-700 mb-4">Grade Summary</h4>
                 <div id="studentGradeSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                    <!-- Average grade cards will be injected here -->
+                    <!-- Subject-wise average grade cards will be injected here -->
                 </div>
-                <div id="overallAverageCard" class="grade-summary-card overall-average-card">
-                    <h5>Overall Average Grade</h5>
-                    <p id="overallAverageScore">N/A</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div id="overallAverageCard" class="grade-summary-card overall-average-card">
+                        <h5>Overall Average Grade</h5>
+                        <p id="overallAverageScore">N/A</p>
+                    </div>
+                    <div id="totalScoreCard" class="grade-summary-card total-score-card">
+                        <h5>Total Score Across All Grades</h5>
+                        <p id="totalScoreValue">N/A</p>
+                    </div>
                 </div>
 
                 <h4 class="text-2xl font-bold text-indigo-700 mb-4 mt-8">Grades and Subjects History</h4>
@@ -687,7 +762,7 @@
             } else if (sectionId === 'subjects') {
                 loadSubjects();
             } else if (sectionId === 'grades') {
-                loadGrades();
+                loadGrades(); // This will now also update the summary cards in the grades section
                 populateStudentAndSubjectDropdowns(); // Ensure dropdowns are updated for grades
             }
         }
@@ -948,19 +1023,33 @@
         // --- Grade Management ---
 
         /**
-         * Loads and displays all grades from the API.
+         * Loads and displays all grades from the API, and updates overall grade summary.
          */
         async function loadGrades() {
             const gradeList = document.getElementById('gradeList');
+            const allGradesAverageElement = document.getElementById('allGradesAverage');
+            const rankedStudentsDropdown = document.getElementById('rankedStudentsDropdown'); // New element
+
+            // Show loading messages for summary cards and dropdown
+            allGradesAverageElement.textContent = 'Calculating...';
+            rankedStudentsDropdown.innerHTML = '<option value="">Calculating Ranks...</option>';
             gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading grades...</td></tr>`;
+
+            const students = await fetchData('/students/');
             const grades = await fetchData('/grades/');
             gradeList.innerHTML = ''; // Clear loading message
 
+            let totalOverallScoreForSection = 0;
+            let countOverallGradesForSection = 0;
+
             if (grades.length === 0) {
                 gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
+                allGradesAverageElement.textContent = 'N/A';
+                rankedStudentsDropdown.innerHTML = '<option value="">No grades to rank</option>';
                 return;
             }
 
+            // Populate grade list table
             grades.forEach(grade => {
                 const row = document.createElement('tr');
                 row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
@@ -982,7 +1071,67 @@
                     row.classList.remove('opacity-0', 'translate-y-4');
                     row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
                 }, 50);
+
+                totalOverallScoreForSection += parseFloat(grade.score);
+                countOverallGradesForSection++;
             });
+
+            // Update the overall average in the Grades section
+            const averageForSection = countOverallGradesForSection > 0 ? (totalOverallScoreForSection / countOverallGradesForSection).toFixed(2) : 'N/A';
+            allGradesAverageElement.textContent = averageForSection;
+
+            // --- Calculate and display student ranks ---
+            const studentScores = {}; // { studentId: { totalScore: X, count: Y, name: 'Student Name' } }
+
+            // Aggregate scores per student
+            grades.forEach(grade => {
+                const studentId = grade.student.id;
+                const score = parseFloat(grade.score);
+                if (!studentScores[studentId]) {
+                    studentScores[studentId] = {
+                        totalScore: 0,
+                        count: 0,
+                        name: grade.student.full_name
+                    };
+                }
+                studentScores[studentId].totalScore += score;
+                studentScores[studentId].count++;
+            });
+
+            // Calculate average for each student and prepare for ranking
+            const rankedStudents = Object.values(studentScores).map(studentData => {
+                const average = studentData.count > 0 ? (studentData.totalScore / studentData.count) : 0;
+                return {
+                    name: studentData.name,
+                    average: average
+                };
+            });
+
+            // Sort students by average in descending order
+            rankedStudents.sort((a, b) => b.average - a.average);
+
+            // Populate the ranked students dropdown
+            rankedStudentsDropdown.innerHTML = ''; // Clear loading message
+
+            if (rankedStudents.length === 0) {
+                rankedStudentsDropdown.innerHTML = '<option value="">No students with grades to rank</option>';
+            } else {
+                rankedStudents.slice(0, 3).forEach((student, index) => { // Get top 3
+                    const rank = index + 1;
+                    const option = document.createElement('option');
+                    option.value = student.name; // Could use student ID if we wanted to select and trigger something
+                    option.textContent = `Rank ${rank}: ${student.name} (${student.average.toFixed(2)})`;
+                    rankedStudentsDropdown.appendChild(option);
+                });
+
+                if (rankedStudents.length > 3) {
+                     const moreOption = document.createElement('option');
+                     moreOption.value = ""; // No specific value
+                     moreOption.textContent = `... and ${rankedStudents.length - 3} more students`;
+                     moreOption.disabled = true; // Make it non-selectable
+                     rankedStudentsDropdown.appendChild(moreOption);
+                }
+            }
         }
 
         /**
@@ -1100,7 +1249,7 @@
         // --- Student Details Modal Functions ---
 
         /**
-         * Opens the student detail modal and populates it with data, including grade averages.
+         * Opens the student detail modal and populates it with data, including grade averages and total score.
          * @param {number} studentId - The ID of the student to display.
          */
         async function viewStudentDetails(studentId) {
@@ -1113,6 +1262,7 @@
             const studentGradesList = document.getElementById('studentGradesList');
             const studentGradeSummary = document.getElementById('studentGradeSummary');
             const overallAverageScore = document.getElementById('overallAverageScore');
+            const totalScoreValue = document.getElementById('totalScoreValue'); // New element for total score
 
             // Show loading messages
             studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">Loading grades...</td></tr>`;
@@ -1120,6 +1270,7 @@
                 <div class="grade-summary-card col-span-full text-gray-500">Loading averages...</div>
             `;
             overallAverageScore.textContent = 'Calculating...';
+            totalScoreValue.textContent = 'Calculating...'; // New loading message for total score
 
 
             const student = await fetchData(`/students/${studentId}/`);
@@ -1135,7 +1286,7 @@
                 // Filter grades for the specific student
                 const studentGrades = allGrades.filter(grade => grade.student.id === studentId);
 
-                // --- Calculate and Display Grade Averages ---
+                // --- Calculate and Display Grade Averages and Total Score ---
                 let totalOverallScore = 0;
                 let totalOverallGradesCount = 0;
                 const subjectAverages = {}; // { subjectId: { totalScore: X, count: Y, name: 'Subject Name' } }
@@ -1155,7 +1306,7 @@
                     subjectAverages[subjectId].totalScore += score;
                     subjectAverages[subjectId].count++;
 
-                    totalOverallScore += score;
+                    totalOverallScore += score; // Accumulate for total score
                     totalOverallGradesCount++;
                 });
 
@@ -1180,6 +1331,9 @@
                 // Display overall average
                 const overallAverage = totalOverallGradesCount > 0 ? (totalOverallScore / totalOverallGradesCount).toFixed(2) : 'N/A';
                 overallAverageScore.textContent = overallAverage;
+
+                // Display total score (NEW)
+                totalScoreValue.textContent = totalOverallScore.toFixed(2);
 
 
                 // --- Display Grades History Table ---
