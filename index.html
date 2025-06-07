@@ -338,6 +338,17 @@
             color: #4f46e5;
             margin-bottom: 0.75rem;
         }
+        /* Style for Passed/Failed status */
+        .status-passed {
+            color: #10b981; /* Green 500 */
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
+        .status-failed {
+            color: #ef4444; /* Red 500 */
+            font-weight: 700;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -468,16 +479,20 @@
 
             <!-- Summary Cards for Grades Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <!-- Rank dropdown replaces 'Total Grades Recorded' -->
+                <!-- Dropdown for selecting student or 'All Students' -->
                 <div class="rank-dropdown-container">
-                    <h5>Top 3 Ranked Students</h5>
-                    <select id="rankedStudentsDropdown" class="input-field mt-2">
-                        <option value="">Calculating Ranks...</option>
+                    <h5>Overall Grade for:</h5>
+                    <select id="studentGradeFilter" class="input-field mt-2">
+                        <option value="all">All Students (Overall Average)</option>
+                        <!-- Students will be loaded here by JavaScript -->
                     </select>
                 </div>
                 <div class="grades-summary-section-card">
-                    <h5>Overall Average of All Grades</h5>
-                    <p id="allGradesAverage">N/A</p>
+                    <h5 id="displayedAverageTitle">Overall Average of All Grades</h5>
+                    <p>
+                        <span id="allGradesAverage">N/A</span>
+                        <span id="passFailStatus" class="ml-2 font-bold"></span>
+                    </p>
                 </div>
             </div>
 
@@ -612,6 +627,11 @@
     <script>
         // Base URL for your Django API (ensure it matches your Django server address)
         const API_BASE_URL = 'https://bapor-student-management-system-1hzm.onrender.com/api';
+        const PASSING_THRESHOLD = 75; // Define the passing score threshold
+
+        // Global variables to store fetched data
+        let allStudents = [];
+        let allGrades = [];
 
         /**
          * Helper function to get the CSRF token from the DOM.
@@ -762,7 +782,7 @@
             } else if (sectionId === 'subjects') {
                 loadSubjects();
             } else if (sectionId === 'grades') {
-                loadGrades(); // This will now also update the summary cards in the grades section
+                loadGradesAndSummary(); // Combined function to load grades and update summary
                 populateStudentAndSubjectDropdowns(); // Ensure dropdowns are updated for grades
             }
         }
@@ -810,15 +830,15 @@
         async function loadStudents() {
             const studentList = document.getElementById('studentList');
             studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading students...</td></tr>`;
-            const students = await fetchData('/students/');
+            allStudents = await fetchData('/students/'); // Store fetched students globally
             studentList.innerHTML = ''; // Clear loading message
 
-            if (students.length === 0) {
+            if (allStudents.length === 0) {
                 studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
                 return;
             }
 
-            students.forEach(student => {
+            allStudents.forEach(student => {
                 const row = document.createElement('tr');
                 row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
                 row.innerHTML = `
@@ -871,6 +891,10 @@
                 }
                 clearStudentForm();
                 loadStudents(); // Reload the list
+                // Re-load grades summary if student data might affect ranks/averages
+                if (document.getElementById('grades').classList.contains('active')) {
+                    loadGradesAndSummary();
+                }
             } catch (error) {
                 // Error already handled by sendData function, just prevent further actions
             }
@@ -881,7 +905,7 @@
          * @param {number} id - The ID of the student to edit.
          */
         async function editStudent(id) {
-            const student = await fetchData(`/students/${id}/`);
+            const student = allStudents.find(s => s.id === id); // Use global allStudents
             if (student) {
                 document.getElementById('studentId').value = student.id;
                 document.getElementById('student_id').value = student.student_id;
@@ -911,6 +935,10 @@
             try {
                 await deleteData(`/students/${id}/`);
                 loadStudents(); // Reload the list
+                // Re-load grades summary if student data might affect ranks/averages
+                if (document.getElementById('grades').classList.contains('active')) {
+                    loadGradesAndSummary();
+                }
             } catch (error) {
                 // Error already handled by deleteData function
             }
@@ -977,6 +1005,11 @@
                 }
                 clearSubjectForm();
                 loadSubjects();
+                // Re-populate dropdowns if subject data changes
+                if (document.getElementById('grades').classList.contains('active')) {
+                    populateStudentAndSubjectDropdowns();
+                    loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
+                }
             } catch (error) {
                 // Error handled by sendData
             }
@@ -1015,42 +1048,65 @@
             try {
                 await deleteData(`/subjects/${id}/`);
                 loadSubjects();
+                // Re-populate dropdowns if subject data changes
+                if (document.getElementById('grades').classList.contains('active')) {
+                    populateStudentAndSubjectDropdowns();
+                    loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
+                }
             } catch (error) {
                 // Error handled by deleteData
             }
         }
 
-        // --- Grade Management ---
+        // --- Grade Management (Combined Load and Summary) ---
 
         /**
          * Loads and displays all grades from the API, and updates overall grade summary.
+         * This function is also responsible for populating the student filter dropdown.
          */
-        async function loadGrades() {
+        async function loadGradesAndSummary() {
             const gradeList = document.getElementById('gradeList');
             const allGradesAverageElement = document.getElementById('allGradesAverage');
-            const rankedStudentsDropdown = document.getElementById('rankedStudentsDropdown'); // New element
+            const studentFilterDropdown = document.getElementById('studentGradeFilter'); // Renamed element
+            const displayedAverageTitle = document.getElementById('displayedAverageTitle');
+            const passFailStatusElement = document.getElementById('passFailStatus'); // New element
 
             // Show loading messages for summary cards and dropdown
             allGradesAverageElement.textContent = 'Calculating...';
-            rankedStudentsDropdown.innerHTML = '<option value="">Calculating Ranks...</option>';
+            passFailStatusElement.textContent = ''; // Clear previous status
+            displayedAverageTitle.textContent = 'Overall Average of All Grades'; // Reset title
+            studentFilterDropdown.innerHTML = '<option value="all">Calculating Ranks...</option>';
             gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading grades...</td></tr>`;
 
-            const students = await fetchData('/students/');
-            const grades = await fetchData('/grades/');
+            allStudents = await fetchData('/students/'); // Ensure latest student data
+            allGrades = await fetchData('/grades/'); // Store fetched grades globally
             gradeList.innerHTML = ''; // Clear loading message
 
-            let totalOverallScoreForSection = 0;
-            let countOverallGradesForSection = 0;
+            // First, populate the student filter dropdown with all students
+            studentFilterDropdown.innerHTML = '<option value="all">All Students (Overall Average)</option>';
+            // Sort students by full name for consistent dropdown order
+            allStudents.sort((a, b) => a.full_name.localeCompare(b.full_name));
 
-            if (grades.length === 0) {
+            allStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.full_name;
+                studentFilterDropdown.appendChild(option);
+            });
+            // Attach event listener for dropdown change
+            studentFilterDropdown.onchange = () => updateGradesSummary(studentFilterDropdown.value);
+
+
+            if (allGrades.length === 0) {
                 gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
                 allGradesAverageElement.textContent = 'N/A';
-                rankedStudentsDropdown.innerHTML = '<option value="">No grades to rank</option>';
+                passFailStatusElement.textContent = '';
+                studentFilterDropdown.innerHTML = '<option value="all">No grades to display</option>';
                 return;
             }
 
-            // Populate grade list table
-            grades.forEach(grade => {
+            // Populate grade list table (same as before)
+            allGrades.forEach(grade => {
                 const row = document.createElement('tr');
                 row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
                 row.innerHTML = `
@@ -1071,68 +1127,68 @@
                     row.classList.remove('opacity-0', 'translate-y-4');
                     row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
                 }, 50);
-
-                totalOverallScoreForSection += parseFloat(grade.score);
-                countOverallGradesForSection++;
             });
 
-            // Update the overall average in the Grades section
-            const averageForSection = countOverallGradesForSection > 0 ? (totalOverallScoreForSection / countOverallGradesForSection).toFixed(2) : 'N/A';
-            allGradesAverageElement.textContent = averageForSection;
+            // Initial update of summary cards for 'All Students'
+            updateGradesSummary('all');
+        }
 
-            // --- Calculate and display student ranks ---
-            const studentScores = {}; // { studentId: { totalScore: X, count: Y, name: 'Student Name' } }
+        /**
+         * Updates the overall average and pass/fail status in the Grades section.
+         * Can display for all students or a selected student.
+         * @param {string | number} selectedStudentId - 'all' for overall average, or student ID for specific student.
+         */
+        function updateGradesSummary(selectedStudentId) {
+            const allGradesAverageElement = document.getElementById('allGradesAverage');
+            const displayedAverageTitle = document.getElementById('displayedAverageTitle');
+            const passFailStatusElement = document.getElementById('passFailStatus');
 
-            // Aggregate scores per student
-            grades.forEach(grade => {
-                const studentId = grade.student.id;
-                const score = parseFloat(grade.score);
-                if (!studentScores[studentId]) {
-                    studentScores[studentId] = {
-                        totalScore: 0,
-                        count: 0,
-                        name: grade.student.full_name
-                    };
-                }
-                studentScores[studentId].totalScore += score;
-                studentScores[studentId].count++;
-            });
+            let gradesToConsider = [];
+            let title = 'Overall Average of All Grades';
 
-            // Calculate average for each student and prepare for ranking
-            const rankedStudents = Object.values(studentScores).map(studentData => {
-                const average = studentData.count > 0 ? (studentData.totalScore / studentData.count) : 0;
-                return {
-                    name: studentData.name,
-                    average: average
-                };
-            });
-
-            // Sort students by average in descending order
-            rankedStudents.sort((a, b) => b.average - a.average);
-
-            // Populate the ranked students dropdown
-            rankedStudentsDropdown.innerHTML = ''; // Clear loading message
-
-            if (rankedStudents.length === 0) {
-                rankedStudentsDropdown.innerHTML = '<option value="">No students with grades to rank</option>';
+            if (selectedStudentId === 'all') {
+                gradesToConsider = allGrades;
             } else {
-                rankedStudents.slice(0, 3).forEach((student, index) => { // Get top 3
-                    const rank = index + 1;
-                    const option = document.createElement('option');
-                    option.value = student.name; // Could use student ID if we wanted to select and trigger something
-                    option.textContent = `Rank ${rank}: ${student.name} (${student.average.toFixed(2)})`;
-                    rankedStudentsDropdown.appendChild(option);
-                });
-
-                if (rankedStudents.length > 3) {
-                     const moreOption = document.createElement('option');
-                     moreOption.value = ""; // No specific value
-                     moreOption.textContent = `... and ${rankedStudents.length - 3} more students`;
-                     moreOption.disabled = true; // Make it non-selectable
-                     rankedStudentsDropdown.appendChild(moreOption);
+                const student = allStudents.find(s => s.id == selectedStudentId);
+                if (student) {
+                    gradesToConsider = allGrades.filter(grade => grade.student.id == selectedStudentId);
+                    title = `Overall Average for: ${student.full_name}`;
+                } else {
+                    // Should not happen if dropdown is correctly populated, but for safety
+                    allGradesAverageElement.textContent = 'N/A';
+                    passFailStatusElement.textContent = '';
+                    displayedAverageTitle.textContent = 'Overall Average of All Grades';
+                    return;
                 }
             }
+
+            let totalScore = 0;
+            let count = 0;
+
+            gradesToConsider.forEach(grade => {
+                totalScore += parseFloat(grade.score);
+                count++;
+            });
+
+            const average = count > 0 ? (totalScore / count) : 'N/A';
+            allGradesAverageElement.textContent = typeof average === 'number' ? average.toFixed(2) : average;
+            displayedAverageTitle.textContent = title;
+
+            // Determine Pass/Fail status
+            if (typeof average === 'number') {
+                if (average >= PASSING_THRESHOLD) {
+                    passFailStatusElement.textContent = '(Passed)';
+                    passFailStatusElement.className = 'status-passed';
+                } else {
+                    passFailStatusElement.textContent = '(Failed)';
+                    passFailStatusElement.className = 'status-failed';
+                }
+            } else {
+                passFailStatusElement.textContent = ''; // No grades, no status
+                passFailStatusElement.className = '';
+            }
         }
+
 
         /**
          * Populates the student and subject dropdowns in the grade form.
@@ -1149,8 +1205,8 @@
             studentSelect.innerHTML = '<option value="">Select Student</option>';
             subjectSelect.innerHTML = '<option value="">Select Subject</option>';
 
-            const students = await fetchData('/students/');
-            students.forEach(student => {
+            // Use the globally available allStudents
+            allStudents.forEach(student => {
                 const option = document.createElement('option');
                 option.value = student.id;
                 option.textContent = student.full_name;
@@ -1194,7 +1250,7 @@
                     showMessageBox('Grade added successfully!', false);
                 }
                 clearGradeForm();
-                loadGrades();
+                loadGradesAndSummary(); // Reload grades and update summary
             } catch (error) {
                 // Error handled by sendData
             }
@@ -1205,7 +1261,7 @@
          * @param {number} id - The ID of the grade to edit.
          */
         async function editGrade(id) {
-            const grade = await fetchData(`/grades/${id}/`);
+            const grade = allGrades.find(g => g.id === id); // Use global allGrades
             if (grade) {
                 document.getElementById('gradeId').value = grade.id;
                 // Ensure dropdowns are populated BEFORE setting selected values
@@ -1240,7 +1296,7 @@
         async function deleteGrade(id) {
             try {
                 await deleteData(`/grades/${id}/`);
-                loadGrades();
+                loadGradesAndSummary(); // Reload grades and update summary
             } catch (error) {
                 // Error handled by deleteData
             }
@@ -1273,8 +1329,8 @@
             totalScoreValue.textContent = 'Calculating...'; // New loading message for total score
 
 
-            const student = await fetchData(`/students/${studentId}/`);
-            const allGrades = await fetchData('/grades/'); // Fetch all grades
+            const student = allStudents.find(s => s.id === studentId); // Use global allStudents
+            // const allGrades = await fetchData('/grades/'); // No need to re-fetch if allGrades is global and up-to-date
 
             if (student) {
                 studentDetailName.textContent = `${student.full_name}'s Details`;
@@ -1380,7 +1436,8 @@
 
         // --- Initial Load ---
         window.onload = () => {
-            loadStudents(); // Load initial data for the default active tab (Students)
+            loadStudents(); // Load students first as they are needed for dropdowns
+            loadGradesAndSummary(); // Then load grades and update summary
             populateStudentAndSubjectDropdowns(); // Also load these for the Grades tab's dropdowns
         };
     </script>
