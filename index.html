@@ -443,14 +443,14 @@
          */
         function getCsrfToken() {
             const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-            return csrfInput ? csrfInput.value : ''; // Return empty string if not found, let Django handle validation
+            return csrfInput ? csrfInput.value: ''; // Return empty string if not found, let Django handle validation
         }
 
         // --- Utility Functions ---
 
         /**
          * Displays a temporary message box for notifications.
-         * @param {string} message - The message to display.
+         * @param {string} message—The message to display.
          * @param {boolean} isError - True if it's an error message, false for success.
          */
         function showMessageBox(message, isError = false) {
