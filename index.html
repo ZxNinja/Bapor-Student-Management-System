@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts - Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Custom CSS for specific elements and overrides */
         body {
@@ -16,69 +16,84 @@
             color: #333;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px; /* Slightly wider container */
             margin: 2rem auto;
-            padding: 1.5rem;
+            padding: 2rem; /* Increased padding */
             background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 16px; /* More rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Stronger, softer shadow */
         }
         .header {
             background-color: #4f46e5; /* Indigo 600 */
+            background-image: linear-gradient(to right, #6366f1, #4f46e5); /* Subtle gradient */
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
+            padding: 1.5rem 2rem; /* More padding */
+            border-radius: 12px;
+            margin-bottom: 2.5rem; /* Increased margin */
             text-align: center;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3); /* Shadow matching header color */
         }
         .tab-button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 0.85rem 2rem; /* Larger tabs */
+            border-radius: 10px; /* More rounded tabs */
+            font-weight: 700; /* Bolder font */
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.3s ease-in-out; /* Slower, smoother transition */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow */
         }
         .tab-button.active {
             background-color: #4f46e5; /* Indigo 600 */
             color: white;
+            transform: translateY(-2px); /* Slight lift */
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); /* Prominent shadow for active tab */
         }
         .tab-button:not(.active):hover {
             background-color: #e0e7ff; /* Indigo 100 */
             color: #4f46e5;
+            transform: translateY(-1px); /* Slight lift on hover */
         }
         .form-section {
             display: none; /* Hidden by default */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Fade and slide in */
         }
         .form-section.active {
             display: block; /* Shown when active */
+            opacity: 1;
+            transform: translateY(0);
         }
         .input-field {
-            padding: 0.75rem;
+            padding: 0.85rem; /* More padding */
             border: 1px solid #d1d5db; /* Gray 300 */
-            border-radius: 8px;
+            border-radius: 10px; /* More rounded */
             width: 100%;
-            box-sizing: border-box; /* Include padding in width */
-            transition: border-color 0.2s;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .input-field:focus {
             outline: none;
             border-color: #6366f1; /* Indigo 500 */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Indigo 500 with opacity */
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); /* Larger, softer shadow */
         }
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            padding: 0.85rem 1.75rem; /* More padding */
+            border-radius: 10px; /* More rounded */
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow */
         }
         .btn-primary {
             background-color: #4f46e5; /* Indigo 600 */
             color: white;
+            background-image: linear-gradient(to right, #6366f1, #4f46e5); /* Primary button gradient */
         }
         .btn-primary:hover {
             background-color: #4338ca; /* Indigo 700 */
-            transform: translateY(-1px);
+            background-image: linear-gradient(to right, #4f46e5, #3730a3); /* Darker gradient on hover */
+            transform: translateY(-2px); /* Lift effect */
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); /* Stronger shadow on hover */
         }
         .btn-secondary {
             background-color: #e0e7ff; /* Indigo 100 */
@@ -87,28 +102,38 @@
         .btn-secondary:hover {
             background-color: #c7d2fe; /* Indigo 200 */
             transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
         .btn-danger {
             background-color: #ef4444; /* Red 500 */
             color: white;
+            background-image: linear-gradient(to right, #f87171, #ef4444); /* Red button gradient */
         }
         .btn-danger:hover {
             background-color: #dc2626; /* Red 600 */
-            transform: translateY(-1px);
+            background-image: linear-gradient(to right, #ef4444, #dc2626); /* Darker red gradient on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
         .table-header {
             background-color: #e0e7ff; /* Indigo 100 */
             color: #4f46e5;
-            font-weight: 600;
+            font-weight: 700; /* Bolder header */
             text-align: left;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem; /* More padding */
         }
         .table-row:nth-child(even) {
             background-color: #eff6ff; /* Blue 50 */
         }
         .table-cell {
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem; /* More padding */
             border-bottom: 1px solid #e5e7eb; /* Gray 200 */
+        }
+        .table-row {
+            transition: background-color 0.2s ease-in-out;
+        }
+        .table-row:hover {
+            background-color: #e0e7ff; /* Highlight on hover */
         }
         .modal {
             display: none;
@@ -119,34 +144,45 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.5); /* Darker overlay */
             justify-content: center;
             align-items: center;
+            opacity: 0; /* For fade-in animation */
+            transition: opacity 0.3s ease-out;
+        }
+        .modal.show {
+            opacity: 1;
         }
         .modal-content {
             background-color: #fefefe;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            padding: 3rem; /* More padding */
+            border-radius: 16px; /* More rounded */
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3); /* Stronger shadow */
             position: relative;
-            max-width: 500px;
+            max-width: 550px; /* Slightly wider modal */
             width: 90%;
             text-align: center;
+            transform: scale(0.9); /* For scale-in animation */
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
         }
         .close-button {
-            color: #aaa;
+            color: #9ca3af; /* Gray 400 */
             position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
+            top: 20px; /* Adjusted position */
+            right: 25px; /* Adjusted position */
+            font-size: 32px; /* Larger close button */
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.2s;
         }
         .close-button:hover,
         .close-button:focus {
-            color: black;
+            color: #374151; /* Gray 700 */
             text-decoration: none;
-            cursor: pointer;
         }
         .message-box {
             position: fixed;
@@ -154,103 +190,126 @@
             right: 20px;
             background-color: #4CAF50; /* Green */
             color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: none; /* Hidden by default */
+            padding: 15px 25px; /* More padding */
+            border-radius: 10px; /* More rounded */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
             z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+        .message-box.show {
+            opacity: 1;
+            transform: translateY(0);
         }
         .message-box.error {
             background-color: #f44336; /* Red */
         }
         /* Specific styles for the student detail modal */
         #studentDetailModal .modal-content {
-            max-width: 800px; /* Wider for details */
+            max-width: 900px; /* Wider for details */
             text-align: left;
         }
         #studentDetailModal h3 {
-            font-size: 1.5rem; /* text-2xl */
-            font-weight: 600; /* font-semibold */
-            margin-bottom: 1rem;
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1.5rem;
             color: #4f46e5; /* Indigo 600 */
         }
         #studentDetailModal .detail-item {
             margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
         }
         #studentDetailModal .detail-label {
-            font-weight: 500; /* font-medium */
+            font-weight: 600; /* font-semibold */
             color: #4a5568; /* Gray 700 */
-            width: 120px; /* Fixed width for labels */
-            display: inline-block;
+            min-width: 150px; /* Fixed width for labels */
+            flex-shrink: 0;
         }
         #studentDetailModal .detail-value {
             color: #2d3748; /* Gray 800 */
+            flex-grow: 1;
         }
         #studentDetailModal .grades-table-container {
-            margin-top: 1.5rem;
-            max-height: 300px; /* Fixed height for scrollable grades table */
+            margin-top: 2rem;
+            max-height: 350px; /* Fixed height for scrollable grades table */
             overflow-y: auto;
             border: 1px solid #e2e8f0; /* Gray 300 */
-            border-radius: 8px;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.05); /* Inner shadow for scrollable area */
+        }
+        /* Utility for button groups in tables */
+        .table-actions {
+            display: flex;
+            gap: 0.5rem; /* Spacing between buttons */
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            justify-content: flex-end; /* Align actions to the right */
+        }
+        .table-actions .btn {
+            padding: 0.6rem 1rem; /* Slightly smaller buttons in table */
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.25rem;
         }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="container">
         <header class="header">
-            <h1 class="text-3xl font-bold">Student Management System</h1>
-            <p class="mt-2 text-lg">Manage student records, subjects, and grades</p>
+            <h1 class="text-4xl font-extrabold tracking-tight">Student Management System</h1>
+            <p class="mt-3 text-xl font-light opacity-90">Effortlessly manage student records, subjects, and grades.</p>
         </header>
 
         <!-- Navigation Tabs -->
-        <nav class="flex justify-center space-x-4 mb-8">
-            <button class="tab-button active" onclick="showSection('students')">Students</button>
-            <button class="tab-button" onclick="showSection('subjects')">Subjects</button>
-            <button class="tab-button" onclick="showSection('grades')">Grades</button>
+        <nav class="flex justify-center space-x-6 mb-10">
+            <button class="tab-button active" onclick="showSection(event, 'students')">Students</button>
+            <button class="tab-button" onclick="showSection(event, 'subjects')">Subjects</button>
+            <button class="tab-button" onclick="showSection(event, 'grades')">Grades</button>
         </nav>
 
         <!-- Message Box for notifications -->
         <div id="messageBox" class="message-box"></div>
 
-        <!-- Hidden input for CSRF token -->
+        <!-- Hidden input for CSRF token (Django will fill this) -->
         <input type="hidden" name="csrfmiddlewaretoken" value="{% csrf_token %}">
 
         <!-- Students Section -->
         <section id="students" class="form-section active">
-            <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Student Management</h2>
+            <h2 class="text-3xl font-bold mb-6 text-indigo-700">Student Records</h2>
 
             <!-- Add/Edit Student Form -->
-            <form id="studentForm" class="bg-indigo-50 p-6 rounded-lg shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="studentForm" class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <input type="hidden" id="studentId" value="">
                 <div>
-                    <label for="student_id" class="block text-sm font-medium text-gray-700 mb-1">Student ID</label>
+                    <label for="student_id" class="block text-sm font-semibold text-gray-800 mb-2">Student ID</label>
                     <input type="text" id="student_id" class="input-field" placeholder="e.g., S12345" required>
                 </div>
                 <div>
-                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <label for="first_name" class="block text-sm font-semibold text-gray-800 mb-2">First Name</label>
                     <input type="text" id="first_name" class="input-field" placeholder="John" required>
                 </div>
                 <div>
-                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <label for="last_name" class="block text-sm font-semibold text-gray-800 mb-2">Last Name</label>
                     <input type="text" id="last_name" class="input-field" placeholder="Doe" required>
                 </div>
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label for="email" class="block text-sm font-semibold text-gray-800 mb-2">Email</label>
                     <input type="email" id="email" class="input-field" placeholder="john.doe@example.com" required>
                 </div>
-                <div>
-                    <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <div class="col-span-1 md:col-span-2"> <!-- Date of Birth takes full width on small screens, half on larger -->
+                    <label for="date_of_birth" class="block text-sm font-semibold text-gray-800 mb-2">Date of Birth</label>
                     <input type="date" id="date_of_birth" class="input-field">
                 </div>
-                <div class="md:col-span-2 flex justify-end space-x-4">
-                    <button type="submit" class="btn btn-primary">Save Student</button>
+                <div class="md:col-span-2 flex justify-end space-x-4 pt-4">
                     <button type="button" class="btn btn-secondary" onclick="clearStudentForm()">Clear Form</button>
+                    <button type="submit" class="btn btn-primary">Save Student</button>
                 </div>
             </form>
 
             <!-- Student List -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto rounded-lg shadow-md">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden">
                     <thead>
                         <tr>
                             <th class="table-header">Student ID</th>
@@ -258,13 +317,13 @@
                             <th class="table-header">Email</th>
                             <th class="table-header">DOB</th>
                             <th class="table-header">Enrolled On</th>
-                            <th class="table-header w-48">Actions</th> <!-- Increased width for new button -->
+                            <th class="table-header w-56 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="studentList">
                         <!-- Student rows will be injected here by JavaScript -->
                         <tr>
-                            <td colspan="6" class="text-center py-4 table-cell">Loading students...</td>
+                            <td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading students...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -273,44 +332,44 @@
 
         <!-- Subjects Section -->
         <section id="subjects" class="form-section">
-            <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Subject Management</h2>
+            <h2 class="text-3xl font-bold mb-6 text-indigo-700">Course Catalog</h2>
 
             <!-- Add/Edit Subject Form -->
-            <form id="subjectForm" class="bg-indigo-50 p-6 rounded-lg shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="subjectForm" class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <input type="hidden" id="subjectId" value="">
                 <div>
-                    <label for="subject_name" class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
+                    <label for="subject_name" class="block text-sm font-semibold text-gray-800 mb-2">Subject Name</label>
                     <input type="text" id="subject_name" class="input-field" placeholder="e.g., Calculus I" required>
                 </div>
                 <div>
-                    <label for="subject_code" class="block text-sm font-medium text-gray-700 mb-1">Subject Code</label>
+                    <label for="subject_code" class="block text-sm font-semibold text-gray-800 mb-2">Subject Code</label>
                     <input type="text" id="subject_code" class="input-field" placeholder="e.g., CALC101" required>
                 </div>
-                <div class="md:col-span-2">
-                    <label for="subject_description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea id="subject_description" class="input-field" rows="3" placeholder="Brief description of the subject"></textarea>
+                <div class="col-span-1 md:col-span-2">
+                    <label for="subject_description" class="block text-sm font-semibold text-gray-800 mb-2">Description</label>
+                    <textarea id="subject_description" class="input-field" rows="4" placeholder="Brief description of the subject"></textarea>
                 </div>
-                <div class="md:col-span-2 flex justify-end space-x-4">
-                    <button type="submit" class="btn btn-primary">Save Subject</button>
+                <div class="md:col-span-2 flex justify-end space-x-4 pt-4">
                     <button type="button" class="btn btn-secondary" onclick="clearSubjectForm()">Clear Form</button>
+                    <button type="submit" class="btn btn-primary">Save Subject</button>
                 </div>
             </form>
 
             <!-- Subject List -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto rounded-lg shadow-md">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden">
                     <thead>
                         <tr>
                             <th class="table-header">Code</th>
                             <th class="table-header">Name</th>
                             <th class="table-header">Description</th>
-                            <th class="table-header w-32">Actions</th>
+                            <th class="table-header w-48 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="subjectList">
                         <!-- Subject rows will be injected here by JavaScript -->
                         <tr>
-                            <td colspan="4" class="text-center py-4 table-cell">Loading subjects...</td>
+                            <td colspan="4" class="text-center py-6 table-cell text-gray-500">Loading subjects...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -319,27 +378,27 @@
 
         <!-- Grades Section -->
         <section id="grades" class="form-section">
-            <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Grade Management</h2>
+            <h2 class="text-3xl font-bold mb-6 text-indigo-700">Student Grades</h2>
 
             <!-- Add/Edit Grade Form -->
-            <form id="gradeForm" class="bg-indigo-50 p-6 rounded-lg shadow-inner mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form id="gradeForm" class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <input type="hidden" id="gradeId" value="">
                 <div>
-                    <label for="grade_student" class="block text-sm font-medium text-gray-700 mb-1">Student</label>
+                    <label for="grade_student" class="block text-sm font-semibold text-gray-800 mb-2">Student</label>
                     <select id="grade_student" class="input-field" required>
                         <option value="">Select Student</option>
                         <!-- Students will be loaded here by JavaScript -->
                     </select>
                 </div>
                 <div>
-                    <label for="grade_subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                    <label for="grade_subject" class="block text-sm font-semibold text-gray-800 mb-2">Subject</label>
                     <select id="grade_subject" class="input-field" required>
                         <option value="">Select Subject</option>
                         <!-- Subjects will be loaded here by JavaScript -->
                     </select>
                 </div>
                 <div>
-                    <label for="grade_type" class="block text-sm font-medium text-gray-700 mb-1">Grade Type</label>
+                    <label for="grade_type" class="block text-sm font-semibold text-gray-800 mb-2">Grade Type</label>
                     <select id="grade_type" class="input-field" required>
                         <option value="">Select Type</option>
                         <option value="activity">Activity</option>
@@ -348,22 +407,22 @@
                     </select>
                 </div>
                 <div>
-                    <label for="grade_score" class="block text-sm font-medium text-gray-700 mb-1">Score</label>
+                    <label for="grade_score" class="block text-sm font-semibold text-gray-800 mb-2">Score</label>
                     <input type="number" step="0.01" id="grade_score" class="input-field" placeholder="e.g., 85.50" required>
                 </div>
-                <div class="md:col-span-2">
-                    <label for="grade_notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
-                    <textarea id="grade_notes" class="input-field" rows="3" placeholder="Any additional notes about the grade"></textarea>
+                <div class="col-span-1 md:col-span-2">
+                    <label for="grade_notes" class="block text-sm font-semibold text-gray-800 mb-2">Notes (Optional)</label>
+                    <textarea id="grade_notes" class="input-field" rows="4" placeholder="Any additional notes about the grade"></textarea>
                 </div>
-                <div class="md:col-span-2 flex justify-end space-x-4">
+                <div class="md:col-span-2 flex justify-end space-x-4 pt-4">
+                    <button type="button" class="btn btn-secondary" onclick="clearGradeForm()">Clear Form</button>
                     <button type="submit" class="btn btn-primary">Save Grade</button>
-                    <button type="button" class="btn btn-secondary" onclick="clearGradeForm()">Cancel</button>
                 </div>
             </form>
 
             <!-- Grade List -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto rounded-lg shadow-md">
+                <table class="min-w-full bg-white rounded-lg overflow-hidden">
                     <thead>
                         <tr>
                             <th class="table-header">Student</th>
@@ -371,13 +430,13 @@
                             <th class="table-header">Type</th>
                             <th class="table-header">Score</th>
                             <th class="table-header">Date</th>
-                            <th class="table-header w-32">Actions</th>
+                            <th class="table-header w-48 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="gradeList">
                         <!-- Grade rows will be injected here by JavaScript -->
                         <tr>
-                            <td colspan="6" class="text-center py-4 table-cell">Loading grades...</td>
+                            <td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading grades...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -388,7 +447,7 @@
         <div id="confirmationModal" class="modal">
             <div class="modal-content">
                 <span class="close-button" onclick="closeModal()">&times;</span>
-                <p class="text-lg mb-6">Are you sure you want to delete this item?</p>
+                <p class="text-xl font-semibold mb-6 text-gray-700">Are you sure you want to delete this item?</p>
                 <div class="flex justify-center space-x-4">
                     <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -396,28 +455,28 @@
             </div>
         </div>
 
-        <!-- Student Details Modal (New) -->
+        <!-- Student Details Modal -->
         <div id="studentDetailModal" class="modal">
             <div class="modal-content">
                 <span class="close-button" onclick="closeStudentDetailModal()">&times;</span>
-                <h3 id="studentDetailName" class="text-2xl font-semibold mb-4"></h3>
+                <h3 id="studentDetailName" class="text-3xl font-bold mb-5 text-indigo-700"></h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 mb-6 text-left">
-                    <div class="detail-item"><span class="detail-label">Student ID:</span> <span id="detail_student_id" class="detail-value"></span></div>
-                    <div class="detail-item"><span class="detail-label">Email:</span> <span id="detail_email" class="detail-value"></span></div>
-                    <div class="detail-item"><span class="detail-label">Date of Birth:</span> <span id="detail_dob" class="detail-value"></span></div>
-                    <div class="detail-item"><span class="detail-label">Enrolled On:</span> <span id="detail_enrollment_date" class="detail-value"></span></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 mb-8 text-left">
+                    <div class="detail-item"><span class="detail-label">Student ID:</span> <span id="detail_student_id" class="detail-value font-medium"></span></div>
+                    <div class="detail-item"><span class="detail-label">Email:</span> <span id="detail_email" class="detail-value font-medium"></span></div>
+                    <div class="detail-item"><span class="detail-label">Date of Birth:</span> <span id="detail_dob" class="detail-value font-medium"></span></div>
+                    <div class="detail-item"><span class="detail-label">Enrolled On:</span> <span id="detail_enrollment_date" class="detail-value font-medium"></span></div>
                 </div>
 
-                <h4 class="text-xl font-semibold text-indigo-700 mb-3">Grades and Subjects</h4>
+                <h4 class="text-2xl font-bold text-indigo-700 mb-4">Grades and Subjects</h4>
                 <div class="grades-table-container">
-                    <table class="min-w-full bg-white rounded-lg shadow-sm overflow-hidden">
+                    <table class="min-w-full bg-white overflow-hidden">
                         <thead>
                             <tr>
-                                <th class="table-header py-2 px-3 text-sm">Subject</th>
-                                <th class="table-header py-2 px-3 text-sm">Type</th>
-                                <th class="table-header py-2 px-3 text-sm">Score</th>
-                                <th class="table-header py-2 px-3 text-sm">Date</th>
+                                <th class="table-header py-2 px-3 text-base">Subject</th>
+                                <th class="table-header py-2 px-3 text-base">Type</th>
+                                <th class="table-header py-2 px-3 text-base">Score</th>
+                                <th class="table-header py-2 px-3 text-base">Date</th>
                             </tr>
                         </thead>
                         <tbody id="studentGradesList">
@@ -435,7 +494,6 @@
 
     <script>
         // Base URL for your Django API (ensure it matches your Django server address)
-        // This has been updated to point to your deployed Render backend.
         const API_BASE_URL = 'https://bapor-student-management-system-1hzm.onrender.com/api';
 
         /**
@@ -444,14 +502,14 @@
          */
         function getCsrfToken() {
             const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
-            return csrfInput ? csrfInput.value: ''; // Return empty string if not found, let Django handle validation
+            return csrfInput ? csrfInput.value : ''; // Return empty string if not found, let Django handle validation
         }
 
         // --- Utility Functions ---
 
         /**
          * Displays a temporary message box for notifications.
-         * @param {string} message—The message to display.
+         * @param {string} message - The message to display.
          * @param {boolean} isError - True if it's an error message, false for success.
          */
         function showMessageBox(message, isError = false) {
@@ -461,10 +519,14 @@
             if (isError) {
                 messageBox.classList.add('error');
             }
-            messageBox.style.display = 'block';
+            messageBox.classList.add('show'); // Trigger fade-in
             setTimeout(() => {
-                messageBox.style.display = 'none';
-            }, 3000); // Hide after 3 seconds
+                messageBox.classList.remove('show'); // Trigger fade-out
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 400); // Hide completely after fade-out
+            }, 3000); // Display for 3 seconds
+            messageBox.style.display = 'block'; // Ensure it's block before adding 'show'
         }
 
         /**
@@ -501,7 +563,6 @@
             };
 
             // Add CSRF token for unsafe methods (POST, PUT, PATCH, DELETE)
-            // Django's CSRF protection is primarily for forms, but good practice for AJAX
             if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
                 headers['X-CSRFToken'] = getCsrfToken();
             }
@@ -559,20 +620,24 @@
         // --- Tab Navigation ---
 
         /**
-         * Shows the selected section and hides others.
+         * Shows the selected section and hides others with animation.
+         * @param {Event} event - The click event from the tab button.
          * @param {string} sectionId - The ID of the section to show.
          */
-        function showSection(sectionId) {
+        function showSection(event, sectionId) {
             document.querySelectorAll('.form-section').forEach(section => {
                 section.classList.remove('active');
             });
-            document.getElementById(sectionId).classList.add('active');
 
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
-            // event is a global object in browser, currentTarget refers to the element that the event listener is attached to
             event.currentTarget.classList.add('active');
+
+            // Apply 'active' class after a small delay to trigger animation
+            setTimeout(() => {
+                document.getElementById(sectionId).classList.add('active');
+            }, 50); // Small delay to allow 'display: none' to apply before 'active' adds animation
 
             // Reload data when switching tabs
             if (sectionId === 'students') {
@@ -589,20 +654,28 @@
         let deleteCallback = null;
 
         /**
-         * Opens the confirmation modal.
+         * Opens the confirmation modal with animation.
          * @param {Function} callback - The function to execute if confirmed.
          */
         function openModal(callback) {
             deleteCallback = callback;
-            document.getElementById('confirmationModal').style.display = 'flex';
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'flex'; // Make visible
+            setTimeout(() => {
+                modal.classList.add('show'); // Trigger fade-in and scale-in
+            }, 10); // Small delay to ensure display property is applied first
         }
 
         /**
-         * Closes the confirmation modal.
+         * Closes the confirmation modal with animation.
          */
         function closeModal() {
-            document.getElementById('confirmationModal').style.display = 'none';
-            deleteCallback = null;
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('show'); // Trigger fade-out and scale-out
+            setTimeout(() => {
+                modal.style.display = 'none'; // Hide completely after animation
+                deleteCallback = null;
+            }, 300); // Match CSS transition duration
         }
 
         document.getElementById('confirmDeleteBtn').onclick = () => {
@@ -619,31 +692,38 @@
          */
         async function loadStudents() {
             const studentList = document.getElementById('studentList');
-            studentList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">Loading students...</td></tr>`;
+            studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading students...</td></tr>`;
             const students = await fetchData('/students/');
             studentList.innerHTML = ''; // Clear loading message
 
             if (students.length === 0) {
-                studentList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
+                studentList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No students found. Add one above!</td></tr>`;
                 return;
             }
 
             students.forEach(student => {
-                const row = `
-                    <tr class="table-row">
-                        <td class="table-cell font-semibold">${student.student_id}</td>
-                        <td class="table-cell">${student.full_name}</td>
-                        <td class="table-cell">${student.email}</td>
-                        <td class="table-cell">${student.date_of_birth || 'N/A'}</td>
-                        <td class="table-cell">${new Date(student.enrollment_date).toLocaleDateString()}</td>
-                        <td class="table-cell">
-                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editStudent(${student.id})">Edit</button>
-                            <button class="btn btn-danger text-sm px-3 py-1 mr-2" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
-                            <button class="btn btn-primary text-sm px-3 py-1" onclick="viewStudentDetails(${student.id})">View Details</button>
-                        </td>
-                    </tr>
+                const row = document.createElement('tr');
+                row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
+                row.innerHTML = `
+                    <td class="table-cell font-semibold">${student.student_id}</td>
+                    <td class="table-cell">${student.full_name}</td>
+                    <td class="table-cell">${student.email}</td>
+                    <td class="table-cell">${student.date_of_birth || 'N/A'}</td>
+                    <td class="table-cell">${new Date(student.enrollment_date).toLocaleDateString()}</td>
+                    <td class="table-cell text-right">
+                        <div class="table-actions">
+                            <button class="btn btn-secondary text-sm" onclick="editStudent(${student.id})">Edit</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
+                            <button class="btn btn-primary text-sm" onclick="viewStudentDetails(${student.id})">Details</button>
+                        </div>
+                    </td>
                 `;
-                studentList.insertAdjacentHTML('beforeend', row);
+                studentList.appendChild(row);
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    row.classList.remove('opacity-0', 'translate-y-4');
+                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                }, 50); // Small staggered delay for each row
             });
         }
 
@@ -693,6 +773,7 @@
                 document.getElementById('email').value = student.email;
                 document.getElementById('date_of_birth').value = student.date_of_birth;
                 showMessageBox(`Editing student: ${student.full_name}`);
+                document.getElementById('student_id').focus(); // Bring focus to the form
             }
         }
 
@@ -725,28 +806,34 @@
          */
         async function loadSubjects() {
             const subjectList = document.getElementById('subjectList');
-            subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell">Loading subjects...</td></tr>`;
+            subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">Loading subjects...</td></tr>`;
             const subjects = await fetchData('/subjects/');
             subjectList.innerHTML = ''; // Clear loading message
 
             if (subjects.length === 0) {
-                subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
+                subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
                 return;
             }
 
             subjects.forEach(subject => {
-                const row = `
-                    <tr class="table-row">
-                        <td class="table-cell font-semibold">${subject.code}</td>
-                        <td class="table-cell">${subject.name}</td>
-                        <td class="table-cell">${subject.description || 'N/A'}</td>
-                        <td class="table-cell">
-                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editSubject(${subject.id})">Edit</button>
-                            <button class="btn btn-danger text-sm px-3 py-1" onclick="openModal(() => deleteSubject(${subject.id}))">Delete</button>
-                        </td>
-                    </tr>
+                const row = document.createElement('tr');
+                row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
+                row.innerHTML = `
+                    <td class="table-cell font-semibold">${subject.code}</td>
+                    <td class="table-cell">${subject.name}</td>
+                    <td class="table-cell">${subject.description || 'N/A'}</td>
+                    <td class="table-cell text-right">
+                        <div class="table-actions">
+                            <button class="btn btn-secondary text-sm" onclick="editSubject(${subject.id})">Edit</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteSubject(${subject.id}))">Delete</button>
+                        </div>
+                    </td>
                 `;
-                subjectList.insertAdjacentHTML('beforeend', row);
+                subjectList.appendChild(row);
+                setTimeout(() => {
+                    row.classList.remove('opacity-0', 'translate-y-4');
+                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                }, 50);
             });
         }
 
@@ -790,6 +877,7 @@
                 document.getElementById('subject_code').value = subject.code;
                 document.getElementById('subject_description').value = subject.description;
                 showMessageBox(`Editing subject: ${subject.name}`);
+                document.getElementById('subject_name').focus(); // Bring focus to the form
             }
         }
 
@@ -822,30 +910,36 @@
          */
         async function loadGrades() {
             const gradeList = document.getElementById('gradeList');
-            gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell">Loading grades...</td></tr>`;
+            gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading grades...</td></tr>`;
             const grades = await fetchData('/grades/');
             gradeList.innerHTML = ''; // Clear loading message
 
             if (grades.length === 0) {
-                gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-4 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
+                gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
                 return;
             }
 
             grades.forEach(grade => {
-                const row = `
-                    <tr class="table-row">
-                        <td class="table-cell">${grade.student.full_name || 'N/A'}</td>
-                        <td class="table-cell">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
-                        <td class="table-cell">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
-                        <td class="table-cell font-semibold">${grade.score}</td>
-                        <td class="table-cell">${new Date(grade.date_recorded).toLocaleDateString()}</td>
-                        <td class="table-cell">
-                            <button class="btn btn-secondary text-sm px-3 py-1 mr-2" onclick="editGrade(${grade.id})">Edit</button>
-                            <button class="btn btn-danger text-sm px-3 py-1" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
-                        </td>
-                    </tr>
+                const row = document.createElement('tr');
+                row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
+                row.innerHTML = `
+                    <td class="table-cell">${grade.student.full_name || 'N/A'}</td>
+                    <td class="table-cell">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
+                    <td class="table-cell">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
+                    <td class="table-cell font-semibold">${grade.score}</td>
+                    <td class="table-cell">${new Date(grade.date_recorded).toLocaleDateString()}</td>
+                    <td class="table-cell text-right">
+                        <div class="table-actions">
+                            <button class="btn btn-secondary text-sm" onclick="editGrade(${grade.id})">Edit</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
+                        </div>
+                    </td>
                 `;
-                gradeList.insertAdjacentHTML('beforeend', row);
+                gradeList.appendChild(row);
+                setTimeout(() => {
+                    row.classList.remove('opacity-0', 'translate-y-4');
+                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                }, 50);
             });
         }
 
@@ -855,6 +949,10 @@
         async function populateStudentAndSubjectDropdowns() {
             const studentSelect = document.getElementById('grade_student');
             const subjectSelect = document.getElementById('grade_subject');
+
+            // Store current selected values to re-select after repopulating
+            const currentStudentId = studentSelect.value;
+            const currentSubjectId = subjectSelect.value;
 
             // Clear previous options
             studentSelect.innerHTML = '<option value="">Select Student</option>';
@@ -875,6 +973,10 @@
                 option.textContent = `${subject.name} (${subject.code})`;
                 subjectSelect.appendChild(option);
             });
+
+            // Restore previously selected values
+            if (currentStudentId) studentSelect.value = currentStudentId;
+            if (currentSubjectId) subjectSelect.value = currentSubjectId;
         }
 
         /**
@@ -923,6 +1025,7 @@
                 document.getElementById('grade_score').value = grade.score;
                 document.getElementById('grade_notes').value = grade.notes;
                 showMessageBox(`Editing grade for ${grade.student.full_name} in ${grade.subject.name}`);
+                document.getElementById('grade_student').focus(); // Bring focus to the form
             }
         }
 
@@ -952,7 +1055,7 @@
             }
         }
 
-        // --- Student Details Modal Functions (New) ---
+        // --- Student Details Modal Functions ---
 
         /**
          * Opens the student detail modal and populates it with data.
@@ -968,7 +1071,7 @@
             const studentGradesList = document.getElementById('studentGradesList');
 
             // Show loading message for grades
-            studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell">Loading grades...</td></tr>`;
+            studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">Loading grades...</td></tr>`;
 
             const student = await fetchData(`/students/${studentId}/`);
             const allGrades = await fetchData('/grades/'); // Fetch all grades
@@ -989,34 +1092,43 @@
                     studentGradesList.innerHTML = `<tr><td colspan="4" class="text-center py-4 table-cell text-gray-500">No grades recorded for this student.</td></tr>`;
                 } else {
                     studentGrades.forEach(grade => {
-                        const row = `
-                            <tr class="table-row">
-                                <td class="table-cell text-sm py-2 px-3">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
-                                <td class="table-cell text-sm py-2 px-3">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
-                                <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}</td>
-                                <td class="table-cell text-sm py-2 px-3">${new Date(grade.date_recorded).toLocaleDateString()}</td>
-                            </tr>
+                        const row = document.createElement('tr');
+                        row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
+                        row.innerHTML = `
+                            <td class="table-cell text-sm py-2 px-3">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
+                            <td class="table-cell text-sm py-2 px-3">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
+                            <td class="table-cell text-sm py-2 px-3 font-semibold">${grade.score}</td>
+                            <td class="table-cell text-sm py-2 px-3">${new Date(grade.date_recorded).toLocaleDateString()}</td>
                         `;
-                        studentGradesList.insertAdjacentHTML('beforeend', row);
+                        studentGradesList.appendChild(row);
+                        setTimeout(() => {
+                            row.classList.remove('opacity-0', 'translate-y-4');
+                            row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                        }, 50);
                     });
                 }
 
-                studentDetailModal.style.display = 'flex'; // Show the modal
+                studentDetailModal.style.display = 'flex';
+                setTimeout(() => {
+                    studentDetailModal.classList.add('show');
+                }, 10);
             } else {
                 showMessageBox('Failed to load student details.', true);
             }
         }
 
         /**
-         * Closes the student detail modal.
+         * Closes the student detail modal with animation.
          */
         function closeStudentDetailModal() {
-            document.getElementById('studentDetailModal').style.display = 'none';
+            const modal = document.getElementById('studentDetailModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
         }
 
-
         // --- Initial Load ---
-        // Load students and subjects when the page loads, and then hide the loading message for the first active tab.
         window.onload = () => {
             loadStudents(); // Load initial data for the default active tab (Students)
             populateStudentAndSubjectDropdowns(); // Also load these for the Grades tab's dropdowns
