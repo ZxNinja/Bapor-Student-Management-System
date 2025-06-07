@@ -423,8 +423,8 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="container">
         <header class="header">
-            <h1 class="text-4xl font-extrabold tracking-tight">Student Management System</h1>
-            <p class="mt-3 text-xl font-light opacity-90">Effortlessly manage student records, subjects, and grades.</p>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">Student Management System</h1>
+            <p class="mt-2 text-base sm:text-lg lg:text-xl font-light opacity-90">Effortlessly manage student records, subjects, and grades.</p>
         </header>
 
         <!-- Navigation Tabs -->
@@ -692,7 +692,7 @@
 
         <!-- Student Details Modal -->
         <div id="studentDetailModal" class="modal">
-            <div class="modal-content">
+            <div class="modal-content p-6 sm:p-8">
                 <span class="close-button" onclick="closeStudentDetailModal()">&times;</span>
                 <h3 id="studentDetailName" class="text-3xl font-bold mb-5 text-indigo-700"></h3>
 
@@ -979,8 +979,8 @@
                     <td class="table-cell text-right">
                         <div class="table-actions">
                             <button class="btn btn-secondary text-sm" onclick="editStudent(${student.id})">Edit</button>
-                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
                             <button class="btn btn-primary text-sm" onclick="viewStudentDetails(${student.id})">Details</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteStudent(${student.id}))">Delete</button>
                         </div>
                     </td>
                 `;
@@ -1447,6 +1447,10 @@
                 populateSuggestions(searchTerm);
                 // If input changes, clear the hidden value until a new suggestion is selected
                 hiddenInput.value = '';
+                // Also check for existing score when input changes in the grade form (not filters)
+                if (inputId === 'grade_student_search_input' || inputId === 'grade_subject_search_input') {
+                    checkExistingGradeScore();
+                }
             });
 
             function populateSuggestions(searchTerm) {
@@ -1479,6 +1483,9 @@
                             // Trigger filterGradesTable if this is a filter dropdown
                             if (inputId.startsWith('filter_')) {
                                 filterGradesTable();
+                            } else if (inputId.startsWith('grade_')) {
+                                // If it's a grade form dropdown, check existing score
+                                checkExistingGradeScore();
                             }
                         });
                         suggestionsContainer.appendChild(div);
@@ -1528,6 +1535,52 @@
                 item => `${item.name} (${item.code})`,
                 item => item.id
             );
+
+            // Add change listener to grade_type for checking existing score
+            document.getElementById('grade_type').onchange = checkExistingGradeScore;
+        }
+
+        /**
+         * Checks if a grade already exists for the selected student, subject, and grade type
+         * and pre-fills the score field if it does.
+         */
+        function checkExistingGradeScore() {
+            const studentId = document.getElementById('grade_student_id').value;
+            const subjectId = document.getElementById('grade_subject_id').value;
+            const gradeType = document.getElementById('grade_type').value;
+            const gradeScoreInput = document.getElementById('grade_score');
+
+            // Reset gradeId and clear previous message unless we explicitly find a match
+            document.getElementById('gradeId').value = '';
+            // Only clear score if it's not being explicitly edited
+            if (!document.activeElement || (document.activeElement.id !== 'grade_score' && !document.getElementById('gradeId').value)) {
+                 gradeScoreInput.value = ''; // Clear if user is changing dropdowns, not directly typing score
+            }
+
+
+            if (studentId && subjectId && gradeType) {
+                const existingGrade = allGrades.find(grade =>
+                    String(grade.student.id) === studentId &&
+                    String(grade.subject.id) === subjectId &&
+                    grade.grade_type === gradeType
+                );
+
+                if (existingGrade) {
+                    gradeScoreInput.value = existingGrade.score;
+                    document.getElementById('gradeId').value = existingGrade.id; // Also set gradeId for update
+                    showMessageBox(`Existing score found: ${existingGrade.score}. Editing this grade.`, false);
+                } else {
+                    if (document.getElementById('gradeId').value === '') { // Only show "no existing score" if not in edit mode
+                        showMessageBox('No existing score found for this combination. Enter a new score.', false);
+                    }
+                }
+            } else {
+                // If any of the required fields are empty, clear the score field and gradeId (unless explicitly editing)
+                if (document.getElementById('gradeId').value === '') {
+                    gradeScoreInput.value = '';
+                }
+                showMessageBox('Select a student, subject, and grade type to check for existing scores.', false);
+            }
         }
 
 
@@ -1547,12 +1600,20 @@
             };
 
             // Basic validation for searchable dropdowns
-            if (isNaN(gradeData.student_id)) {
+            if (isNaN(gradeData.student_id) || !gradeData.student_id) {
                 showMessageBox('Please select a student from the suggestions.', true);
                 return;
             }
-            if (isNaN(gradeData.subject_id)) {
+            if (isNaN(gradeData.subject_id) || !gradeData.subject_id) {
                 showMessageBox('Please select a subject from the suggestions.', true);
+                return;
+            }
+            if (!gradeData.grade_type) {
+                showMessageBox('Please select a grade type.', true);
+                return;
+            }
+            if (isNaN(gradeData.score) || gradeData.score === '') {
+                showMessageBox('Please enter a valid score.', true);
                 return;
             }
 
@@ -1621,6 +1682,7 @@
             document.getElementById('grade_subject_search_input').clearValue();
             // Reset regular dropdown
             document.getElementById('grade_type').value = '';
+            document.getElementById('grade_score').value = ''; // Ensure score is cleared
 
             // Also clear filter dropdowns (using their new clearValue method)
             document.getElementById('filter_student_search_input').clearValue();
