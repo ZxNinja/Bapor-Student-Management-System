@@ -1,162 +1,75 @@
 # students/models.py
-# Database models for the Student Management System.
+# This file defines the database models for our Student Management System.
+# Models represent tables in the database and define the fields (columns)
+# for each record.
 
 from django.db import models
 
 class Student(models.Model):
     """
-    Represents a student.
-    Fields for identification and basic demographic information.
+    Represents a student in the system.
+    Stores basic student details.
     """
-    student_id = models.CharField(
-        max_length=20,
-        unique=True,
-        help_text="A unique identifier for the student (e.g., student ID number)."
-    )
+    student_id = models.CharField(max_length=20, unique=True, help_text="Unique identifier for the student")
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(
-        unique=True,
-        help_text="Unique email address for the student."
-    )
-    date_of_birth = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Student's date of birth (optional)."
-    )
-    enrollment_date = models.DateField(
-        auto_now_add=True,
-        help_text="Date when the student was first enrolled or added to the system."
-    )
-
-    class Meta:
-        # Default ordering for students in queries.
-        ordering = ['last_name', 'first_name']
-        verbose_name = "Student"
-        verbose_name_plural = "Students"
+    email = models.EmailField(unique=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    enrollment_date = models.DateField(auto_now_add=True) # Automatically sets the date when student is added
 
     def __str__(self):
-        """Returns the full name and student ID for easy identification."""
+        """String representation of the Student object."""
         return f"{self.first_name} {self.last_name} ({self.student_id})"
+
+    class Meta:
+        # Orders students by last name and then first name by default
+        ordering = ['last_name', 'first_name']
 
 class Subject(models.Model):
     """
-    Represents an academic subject or course.
+    Represents a subject offered in the school.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True,
-        help_text="Full name of the subject (e.g., 'Mathematics', 'Computer Science Fundamentals')."
-    )
-    code = models.CharField(
-        max_length=10,
-        unique=True,
-        help_text="Short, unique code for the subject (e.g., 'MATH101', 'CS101')."
-    )
-    description = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Detailed description of the subject content."
-    )
+    name = models.CharField(max_length=100, unique=True, help_text="Name of the subject (e.g., Mathematics, Science)")
+    code = models.CharField(max_length=10, unique=True, help_text="Short code for the subject (e.g., MATH101)")
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        """String representation of the Subject object."""
+        return f"{self.name} ({self.code})"
 
     class Meta:
         ordering = ['name']
-        verbose_name = "Subject"
-        verbose_name_plural = "Subjects"
 
-    def __str__(self):
-        """Returns the subject name and code."""
-        return f"{self.name} ({self.code})"
-
-class Paper(models.Model):
+class Grade(models.Model):
     """
-    Represents an assessment or assignment (e.g., activity, quiz, exam) within a subject.
-    Defines the total possible score for this assessment.
+    Represents a grade for a specific student in a specific subject.
+    Grades can be for activities, quizzes, or exams.
     """
-    # Choices for the type of paper/assessment.
-    PAPER_TYPE_CHOICES = (
+    GRADE_TYPES = (
         ('activity', 'Activity'),
         ('quiz', 'Quiz'),
         ('exam', 'Exam'),
     )
 
-    name = models.CharField(
-        max_length=200,
-        help_text="Name of the specific paper/assessment (e.g., 'Midterm Exam', 'Chapter 1 Quiz', 'Homework 1')."
-    )
-    paper_type = models.CharField(
-        max_length=10,
-        choices=PAPER_TYPE_CHOICES,
-        help_text="Category of the paper (Activity, Quiz, or Exam)."
-    )
-    subject = models.ForeignKey(
-        Subject,
-        on_delete=models.CASCADE,
-        related_name='papers', # Allows accessing papers from a Subject instance (e.g., subject.papers.all())
-        help_text="The subject to which this paper belongs."
-    )
-    total_score = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        help_text="The maximum achievable score for this paper."
-    )
-    date_assigned = models.DateField(
-        auto_now_add=True,
-        help_text="The date when this paper record was created."
-    )
-
-    class Meta:
-        # Ensures that a paper with the same name, type, and subject is unique.
-        unique_together = ('name', 'subject', 'paper_type')
-        ordering = ['subject__name', 'paper_type', 'name'] # Order by subject, then type, then name
-        verbose_name = "Paper"
-        verbose_name_plural = "Papers"
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='grades', help_text="The student who received this grade")
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='grades', help_text="The subject for which the grade was given")
+    grade_type = models.CharField(max_length=10, choices=GRADE_TYPES, help_text="Type of assessment (Activity, Quiz, Exam)")
+    score = models.DecimalField(max_digits=5, decimal_places=2, help_text="Score obtained (e.g., 85.50)")
+    date_recorded = models.DateField(auto_now_add=True, help_text="Date the grade was recorded")
+    notes = models.TextField(blank=True, null=True, help_text="Additional notes about the grade")
 
     def __str__(self):
-        """Returns a descriptive string for the paper."""
-        return f"{self.name} ({self.get_paper_type_display()}) - {self.subject.code}"
-
-
-class Grade(models.Model):
-    """
-    Represents a student's achieved score on a specific Paper.
-    """
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.CASCADE,
-        related_name='grades', # Allows accessing grades from a Student instance (e.g., student.grades.all())
-        help_text="The student who received this grade."
-    )
-    paper = models.ForeignKey(
-        Paper,
-        on_delete=models.CASCADE,
-        related_name='grades', # Allows accessing grades from a Paper instance (e.g., paper.grades.all())
-        help_text="The paper (activity, quiz, or exam) for which this grade was awarded."
-    )
-    score = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        help_text="The score obtained by the student on this paper."
-    )
-    date_recorded = models.DateField(
-        auto_now_add=True,
-        help_text="The date when this grade was officially recorded."
-    )
-    notes = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Any additional remarks or comments about the grade."
-    )
+        """String representation of the Grade object."""
+        return f"{self.student.first_name} {self.student.last_name} - {self.subject.code} ({self.grade_type}): {self.score}"
 
     class Meta:
-        # Ensures that a student can only have one grade record for a specific paper.
-        unique_together = ('student', 'paper')
-        # Order grades by student, then subject of the paper, then paper name, then date.
-        ordering = ['student__last_name', 'student__first_name', 'paper__subject__name', 'paper__name', 'date_recorded']
-        verbose_name = "Grade"
-        verbose_name_plural = "Grades"
-
-    def __str__(self):
-        """Returns a descriptive string for the grade."""
-        return f"{self.student.first_name} {self.student.last_name} - {self.paper.name}: {self.score}/{self.paper.total_score}"
-
+        # Ensures that a student can only have one grade of a specific type
+        # for a particular subject on a given date (optional, can be adjusted)
+        # Unique together ensures uniqueness of the combination of fields.
+        # This particular `unique_together` might be too strict if a student
+        # has multiple activities/quizzes in a single day for the same subject.
+        # A more flexible approach might be to allow multiple grades of the same type
+        # and rely on the frontend or a specific 'assessment_name' field for distinction.
+        # For simplicity, we'll keep it as is, but it's a point to consider for refinement.
+        unique_together = ('student', 'subject', 'grade_type', 'date_recorded')
+        ordering = ['student', 'subject', 'date_recorded', 'grade_type']

@@ -1,26 +1,31 @@
 # students/serializers.py
-# Serializers for converting Django models to JSON and vice-versa.
+# This file defines serializers, which convert complex data types (like Django models)
+# into native Python datatypes that can be easily rendered into JSON, XML, or other
+# content types. They also provide deserialization to allow incoming data to be
+# validated and saved into model instances.
 
 from rest_framework import serializers
-from .models import Student, Subject, Paper, Grade
+from .models import Student, Subject, Grade
 
 class StudentSerializer(serializers.ModelSerializer):
     """
     Serializer for the Student model.
-    Includes a 'full_name' computed field.
+    Converts Student model instances to JSON and vice-versa.
     """
-    full_name = serializers.SerializerMethodField(
-        help_text="Concatenated first and last name of the student."
-    )
+    # Define a custom field to get the full name for display purposes
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Student
-        fields = '__all__' # Include all model fields
-        read_only_fields = ['enrollment_date'] # Field set automatically on creation
+        fields = '__all__' # Include all fields from the Student model
+        # You can specify fields explicitly like:
+        # fields = ['id', 'student_id', 'first_name', 'last_name', 'email', 'date_of_birth', 'enrollment_date', 'full_name']
+        read_only_fields = ['enrollment_date'] # enrollment_date is set automatically
 
     def get_full_name(self, obj):
         """
-        Method to calculate the full name of the student.
+        Method to get the full name of the student.
+        Used by the `full_name` SerializerMethodField.
         """
         return f"{obj.first_name} {obj.last_name}"
 
@@ -30,59 +35,32 @@ class SubjectSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Subject
-        fields = '__all__' # Include all model fields
-
-class PaperSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Paper model.
-    Handles nested subject representation for reading, and subject ID for writing.
-    """
-    subject = SubjectSerializer(
-        read_only=True,
-        help_text="Detailed subject information associated with this paper (read-only)."
-    )
-    # Use PrimaryKeyRelatedField for writing, allowing subject_id to be passed.
-    subject_id = serializers.PrimaryKeyRelatedField(
-        queryset=Subject.objects.all(),
-        source='subject', # Map to the 'subject' foreign key
-        write_only=True, # Only used for input, not included in output
-        help_text="The ID of the subject this paper belongs to (write-only)."
-    )
-
-    class Meta:
-        model = Paper
-        fields = '__all__' # Include all model fields, including subject_id for writes
-        read_only_fields = ['date_assigned'] # Field set automatically on creation
+        fields = '__all__' # Include all fields from the Subject model
 
 class GradeSerializer(serializers.ModelSerializer):
     """
     Serializer for the Grade model.
-    Handles nested student and paper representation for reading, and IDs for writing.
+    Allows for nested representation of student and subject details.
     """
-    student = StudentSerializer(
-        read_only=True,
-        help_text="Detailed student information (read-only)."
-    )
-    paper = PaperSerializer(
-        read_only=True,
-        help_text="Detailed paper information (read-only)."
-    )
-    # Use PrimaryKeyRelatedField for writing, allowing student_id and paper_id to be passed.
+    # Use nested serializers to display related student and subject information.
+    # This makes the API response more informative without extra lookups on the client.
+    student = StudentSerializer(read_only=True) # Display full student object, read-only
+    subject = SubjectSerializer(read_only=True) # Display full subject object, read-only
+
+    # To allow creating/updating grades by sending student/subject IDs instead of full objects
+    # write_only=True ensures these fields are used for input, but not displayed in output.
     student_id = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.all(),
-        source='student', # Map to the 'student' foreign key
-        write_only=True,
-        help_text="The ID of the student receiving this grade (write-only)."
+        queryset=Student.objects.all(), source='student', write_only=True,
+        help_text="ID of the student to whom this grade belongs"
     )
-    paper_id = serializers.PrimaryKeyRelatedField(
-        queryset=Paper.objects.all(),
-        source='paper', # Map to the 'paper' foreign key
-        write_only=True,
-        help_text="The ID of the paper for which this grade is given (write-only)."
+    subject_id = serializers.PrimaryKeyRelatedField(
+        queryset=Subject.objects.all(), source='subject', write_only=True,
+        help_text="ID of the subject for which this grade was given"
     )
 
     class Meta:
         model = Grade
-        fields = '__all__' # Include all model fields, including student_id and paper_id for writes
-        read_only_fields = ['date_recorded'] # Field set automatically on creation
-
+        fields = '__all__' # Include all fields from the Grade model
+        # Explicitly list fields for clarity and control, especially with write_only fields
+        # fields = ['id', 'student', 'subject', 'grade_type', 'score', 'date_recorded', 'notes', 'student_id', 'subject_id']
+        read_only_fields = ['date_recorded'] # date_recorded is set automatically
