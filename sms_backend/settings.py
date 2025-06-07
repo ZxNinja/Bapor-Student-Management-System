@@ -14,13 +14,23 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'slm$kz=tkjmztcjtke&vqh0-4)-@=$
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
 # Allowed hosts for your Django application.
-# On Render, your service will have a dynamic hostname.
-# You can get this from your Render dashboard after deployment.
+# IMPORTANT: You need to add the hostname of your Render web service here.
+# You can find this URL in your Render dashboard after deployment.
+# It will look something like: your-service-name.onrender.com
 # For initial deployment, it's common to use ['.render.com', 'your-custom-domain.com']
 # Or simply '*' if you trust Render's security groups and want to avoid issues.
-# For this example, we'll keep '*' for simplicity but advise you to restrict it.
-# You MUST change this back to a specific domain(s) after debugging!
-ALLOWED_HOSTS = ['*'] # IMPORTANT: RESTRICT THIS IN PRODUCTION AFTER DEPLOYMENT
+# For now, we'll keep '*' as a fallback, but specify your Render domain.
+ALLOWED_HOSTS = [
+    'localhost', # For local development
+    '127.0.0.1', # For local development
+    '.render.com', # Allows any subdomain of render.com
+    # Add your specific Render service hostname here once deployed, e.g.:
+    # 'your-backend-service-name.onrender.com',
+    # And any custom domains you might add later:
+    # 'api.yourdomain.com',
+]
+if DEBUG:
+    ALLOWED_HOSTS += ['*'] # Allow all hosts in debug mode for easier local testing
 
 # Application definition
 INSTALLED_APPS = [
@@ -107,10 +117,6 @@ USE_TZ = True
 # Configure for WhiteNoise to serve static files in production
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles' # Collect static files here
-# No need for STATICFILES_DIRS if all static files are collected to STATIC_ROOT
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'Frontend', # This path was for local dev, not needed for production static file serving
-# ]
 
 # WhiteNoise storage for compressed and cached static files
 STORAGES = {
@@ -126,6 +132,16 @@ CORS_ALLOWED_ORIGINS = [
     # Add other allowed origins if you have them, e.g., for local frontend dev:
     # "http://localhost:3000",
 ]
+
+# CSRF_TRUSTED_ORIGINS is crucial for allowing POST requests from your frontend
+# Your GitHub Pages URL needs to be here.
+CSRF_TRUSTED_ORIGINS = [
+    "https://zxninja.github.io",
+    # Add your Render backend domain here if you set a custom domain and access it directly
+    # "https://your-backend-service-name.onrender.com",
+    # "https://api.yourdomain.com",
+]
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
