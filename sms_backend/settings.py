@@ -7,16 +7,20 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Use environment variable for SECRET_KEY for security
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'slm$kz=tkjmztcjtke&vqh0-4)-@=$k57#oeaq@^r5sui)e%wa')
 
-# Set DEBUG to False for production.
-DEBUG = os.environ.get('DJANGO_DEBUG', 'Fals').lower() == 'true'
+# Set DEBUG to False in production. Use environment variable.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
 # Allowed hosts for your Django application.
-# IMPORTANT: For debugging the 400 error, we're temporarily using ['*'].
-# YOU MUST CHANGE THIS BACK TO A SPECIFIC DOMAIN(S) AFTER DEBUGGING!
-ALLOWED_HOSTS = ['*'] # TEMPORARY: This will allow any host for now.
-
+# On Render, your service will have a dynamic hostname.
+# You can get this from your Render dashboard after deployment.
+# For initial deployment, it's common to use ['.render.com', 'your-custom-domain.com']
+# Or simply '*' if you trust Render's security groups and want to avoid issues.
+# For this example, we'll keep '*' for simplicity but advise you to restrict it.
+# You MUST change this back to a specific domain(s) after debugging!
+ALLOWED_HOSTS = ['*'] # IMPORTANT: RESTRICT THIS IN PRODUCTION AFTER DEPLOYMENT
 
 # Application definition
 INSTALLED_APPS = [
@@ -29,10 +33,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'students',
+    'whitenoise.runserver_nostatic', # Add WhiteNoise for serving static files in production
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Add WhiteNoise middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,10 +69,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sms_backend.wsgi.application'
 ASGI_APPLICATION = 'sms_backend.asgi.application'
 
+# Database configuration for PostgreSQL on Render
+# Render automatically sets DATABASE_URL for PostgreSQL databases.
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
-        conn_max_age=600
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'), # Fallback for local development
+        conn_max_age=600,
+        # Ensure that the DATABASE_URL environment variable is picked up correctly
+        # from Render's PostgreSQL service.
     )
 }
 
@@ -93,22 +103,35 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Static files (CSS, JavaScript, Images)
+# Configure for WhiteNoise to serve static files in production
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'Frontend',
-]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles' # Collect static files here
+# No need for STATICFILES_DIRS if all static files are collected to STATIC_ROOT
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'Frontend', # This path was for local dev, not needed for production static file serving
+# ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# WhiteNoise storage for compressed and cached static files
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+# CORS settings for your GitHub Pages frontend
+CORS_ALLOW_ALL_ORIGINS = False # Set to False for production for better security
 CORS_ALLOWED_ORIGINS = [
-    "https://zxninja.github.io",
+    "https://zxninja.github.io", # Your GitHub Pages frontend URL
+    # Add other allowed origins if you have them, e.g., for local frontend dev:
+    # "http://localhost:3000",
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.AllowAny', # Adjust permissions as needed for authentication
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
