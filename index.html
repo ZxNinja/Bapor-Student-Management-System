@@ -580,28 +580,6 @@
             </div>
 
 
-            <!-- New: Filters for Grades Table -->
-            <div class="bg-gray-100 p-6 rounded-xl shadow-inner mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label for="filter_student_name" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Student</label>
-                    <input type="text" id="filter_student_name" class="input-field" placeholder="Enter student name" onkeyup="filterGradesTable()">
-                </div>
-                <div>
-                    <label for="filter_subject_name" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Subject</label>
-                    <input type="text" id="filter_subject_name" class="input-field" placeholder="Enter subject name" onkeyup="filterGradesTable()">
-                </div>
-                <div>
-                    <label for="filter_grade_type" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Grade Type</label>
-                    <select id="filter_grade_type" class="input-field" onchange="filterGradesTable()">
-                        <option value="">All Types</option>
-                        <option value="activity">Activity</option>
-                        <option value="quiz">Quiz</option>
-                        <option value="exam">Exam</option>
-                    </select>
-                </div>
-            </div>
-
-
             <!-- Add/Edit Grade Form -->
             <form id="gradeForm" class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <input type="hidden" id="gradeId" value="">
@@ -638,6 +616,39 @@
                     <label for="grade_notes" class="block text-sm font-semibold text-gray-800 mb-2">Notes (Optional)</label>
                     <textarea id="grade_notes" class="input-field" rows="4" placeholder="Any additional notes about the grade"></textarea>
                 </div>
+
+                <!-- Filters for Grades Table (Moved inside the form) -->
+                <div class="col-span-1 md:col-span-2 bg-gray-100 p-6 rounded-xl shadow-inner mt-4">
+                    <h4 class="text-xl font-bold mb-4 text-indigo-700">Filter Grades Table</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="filter_student_search_input" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Student</label>
+                            <div class="searchable-dropdown-container">
+                                <input type="text" id="filter_student_search_input" class="input-field" placeholder="Search student" autocomplete="off">
+                                <input type="hidden" id="filter_student_id" name="filter_student_id">
+                                <div id="filter_student_suggestions" class="searchable-dropdown-list"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filter_subject_search_input" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Subject</label>
+                            <div class="searchable-dropdown-container">
+                                <input type="text" id="filter_subject_search_input" class="input-field" placeholder="Search subject" autocomplete="off">
+                                <input type="hidden" id="filter_subject_id" name="filter_subject_id">
+                                <div id="filter_subject_suggestions" class="searchable-dropdown-list"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="filter_grade_type" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Grade Type</label>
+                            <select id="filter_grade_type" class="input-field" onchange="filterGradesTable()">
+                                <option value="">All Types</option>
+                                <option value="activity">Activity</option>
+                                <option value="quiz">Quiz</option>
+                                <option value="exam">Exam</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="md:col-span-2 flex justify-end space-x-4 pt-4">
                     <button type="button" class="btn btn-secondary" onclick="clearGradeForm()">Clear Form</button>
                     <button type="submit" class="btn btn-primary">Save Grade</button>
@@ -723,10 +734,13 @@
                         <tbody id="studentGradesList">
                             <!-- Grades for the specific student will be injected here -->
                             <tr>
-                                <td colspan="5" class="text-center py-4 table-cell text-gray-500">Loading grades...</td>
+                                <td colspan="5" class="text-center py-4 table-cell text-gray-500">No grades found.</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="flex justify-end mt-6">
+                    <button class="btn btn-secondary" onclick="closeStudentDetailModal()">Exit</button>
                 </div>
             </div>
         </div>
@@ -740,7 +754,7 @@
 
         // Global variables to store fetched data
         let allStudents = [];
-        let allSubjects = []; // Added global storage for subjects
+        let allSubjects = [];
         let allGrades = [];
         let currentStudentDetailId = null; // To keep track of which student's details are open
 
@@ -898,7 +912,7 @@
                 loadSubjects();
             } else if (sectionId === 'grades') {
                 loadGradesAndSummary(); // Combined function to load grades and update summary
-                // No need to call populateStudentAndSubjectDropdowns here, it's called by loadGradesAndSummary now
+                // No need to call populateGradeFormDropdowns here, it's called by loadGradesAndSummary now
             }
         }
 
@@ -1054,7 +1068,8 @@
                 if (document.getElementById('grades').classList.contains('active')) {
                     loadGradesAndSummary();
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 // Error already handled by deleteData function
             }
         }
@@ -1122,7 +1137,8 @@
                 loadSubjects();
                 // Re-populate dropdowns if subject data changes
                 if (document.getElementById('grades').classList.contains('active')) {
-                    populateStudentAndSubjectDropdowns(); // Update grade form dropdowns
+                    populateGradeFormDropdowns(); // Update grade form dropdowns
+                    populateFilterDropdowns(); // Update filter dropdowns
                     loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
                 }
             } catch (error) {
@@ -1165,7 +1181,8 @@
                 loadSubjects();
                 // Re-populate dropdowns if subject data changes
                 if (document.getElementById('grades').classList.contains('active')) {
-                    populateStudentAndSubjectDropdowns(); // Update grade form dropdowns
+                    populateGradeFormDropdowns(); // Update grade form dropdowns
+                    populateFilterDropdowns(); // Update filter dropdowns
                     loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
                 }
             } catch (error) {
@@ -1199,7 +1216,7 @@
 
             // Fetch and store all data
             allStudents = await fetchData('/students/');
-            allSubjects = await fetchData('/subjects/'); // Ensure subjects are also globally available
+            allSubjects = await fetchData('/subjects/');
             allGrades = await fetchData('/grades/');
 
             // Populate the student filter dropdown in Grades section
@@ -1213,6 +1230,13 @@
             });
             studentFilterDropdown.onchange = () => updateGradesSummary(studentFilterDropdown.value); // Re-attach event listener
 
+
+            // Populate the filter dropdowns within the form
+            populateFilterDropdowns();
+            // Populate the grade form dropdowns (student/subject)
+            populateGradeFormDropdowns();
+
+
             if (allGrades.length === 0) {
                 gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
                 allGradesAverageElement.textContent = 'N/A';
@@ -1220,7 +1244,7 @@
                 passedStudentsCountElement.textContent = '0';
                 failedStudentsCountElement.textContent = '0';
                 studentFilterDropdown.innerHTML = '<option value="all">No grades to display</option>';
-                // If no grades, also clear the search inputs in grade form
+                // Clear the grade form dropdowns as well
                 document.getElementById('grade_student_search_input').value = '';
                 document.getElementById('grade_student_id').value = '';
                 document.getElementById('grade_subject_search_input').value = '';
@@ -1315,19 +1339,46 @@
         }
 
         /**
+         * Populates the filter dropdowns within the Grades form.
+         */
+        function populateFilterDropdowns() {
+            // Filter by Student
+            setupSearchableDropdown(
+                'filter_student_search_input',
+                'filter_student_id',
+                'filter_student_suggestions',
+                allStudents,
+                item => item.full_name,
+                item => item.id
+            );
+
+            // Filter by Subject
+            setupSearchableDropdown(
+                'filter_subject_search_input',
+                'filter_subject_id',
+                'filter_subject_suggestions',
+                allSubjects,
+                item => `${item.name} (${item.code})`,
+                item => item.id
+            );
+        }
+
+        /**
          * Filters the grades table based on input filter values.
          */
         function filterGradesTable() {
             const gradeListBody = document.getElementById('gradeList');
             gradeListBody.innerHTML = ''; // Clear current table
 
-            const filterStudentName = document.getElementById('filter_student_name').value.toLowerCase();
-            const filterSubjectName = document.getElementById('filter_subject_name').value.toLowerCase();
+            // Get selected IDs from the hidden inputs of searchable dropdowns
+            const filterStudentId = document.getElementById('filter_student_id').value;
+            const filterSubjectId = document.getElementById('filter_subject_id').value;
             const filterGradeType = document.getElementById('filter_grade_type').value.toLowerCase();
 
             const filteredGrades = allGrades.filter(grade => {
-                const studentMatch = (grade.student.full_name || '').toLowerCase().includes(filterStudentName);
-                const subjectMatch = (grade.subject.name || '').toLowerCase().includes(filterSubjectName);
+                // Ensure comparison is type-safe (e.g., convert to string or number as needed)
+                const studentMatch = (filterStudentId === '' || String(grade.student.id) === filterStudentId);
+                const subjectMatch = (filterSubjectId === '' || String(grade.subject.id) === filterSubjectId);
                 const typeMatch = filterGradeType === '' || (grade.grade_type || '').toLowerCase() === filterGradeType;
 
                 return studentMatch && subjectMatch && typeMatch;
@@ -1379,10 +1430,6 @@
             const hiddenInput = document.getElementById(hiddenId);
             const suggestionsContainer = document.getElementById(suggestionsId);
 
-            let currentSearchTerm = '';
-            let selectedValue = null; // To keep track of selected item's value (ID)
-            let selectedDisplay = ''; // To keep track of selected item's display text
-
             // Close all dropdowns if click outside
             document.addEventListener('click', (e) => {
                 if (!input.parentNode.contains(e.target)) {
@@ -1396,9 +1443,10 @@
             });
 
             input.addEventListener('input', () => {
-                currentSearchTerm = input.value.toLowerCase();
-                populateSuggestions(currentSearchTerm);
-                suggestionsContainer.classList.add('active');
+                const searchTerm = input.value.toLowerCase();
+                populateSuggestions(searchTerm);
+                // If input changes, clear the hidden value until a new suggestion is selected
+                hiddenInput.value = '';
             });
 
             function populateSuggestions(searchTerm) {
@@ -1419,17 +1467,19 @@
                         div.textContent = displayFormatter(item);
                         div.dataset.value = valueExtractor(item); // Store the actual ID/value
 
-                        // Mark as selected if it matches the current selection
-                        if (div.dataset.value == selectedValue) { // Use == for number/string comparison
+                        // Mark as selected if it matches the current selection (from hidden input)
+                        if (div.dataset.value == hiddenInput.value) { // Use == for number/string comparison
                             div.classList.add('selected');
                         }
 
                         div.addEventListener('click', () => {
                             input.value = displayFormatter(item);
                             hiddenInput.value = valueExtractor(item);
-                            selectedValue = valueExtractor(item);
-                            selectedDisplay = displayFormatter(item);
                             suggestionsContainer.classList.remove('active');
+                            // Trigger filterGradesTable if this is a filter dropdown
+                            if (inputId.startsWith('filter_')) {
+                                filterGradesTable();
+                            }
                         });
                         suggestionsContainer.appendChild(div);
                     });
@@ -1440,23 +1490,25 @@
             input.setValue = (valueToSet, displayToSet) => {
                 hiddenInput.value = valueToSet;
                 input.value = displayToSet;
-                selectedValue = valueToSet;
-                selectedDisplay = displayToSet;
+                // Ensure the selected item is marked if the suggestions are visible
+                populateSuggestions(displayToSet); // Repopulate and mark selected
             };
 
             // Function to clear the value programmatically
             input.clearValue = () => {
                 hiddenInput.value = '';
                 input.value = '';
-                selectedValue = null;
-                selectedDisplay = '';
+                suggestionsContainer.innerHTML = ''; // Clear suggestions
             };
         }
 
 
-        // --- Grade Form Dropdown Initialization ---
-        // This will be called after allStudents and allSubjects are loaded
-        function setupGradeFormSearchableDropdowns() {
+        // --- Grade Form Dropdown Initialization (Now using searchable) ---
+
+        /**
+         * Populates the student and subject dropdowns in the grade form (now searchable inputs).
+         */
+        async function populateGradeFormDropdowns() {
             // Student Dropdown
             setupSearchableDropdown(
                 'grade_student_search_input',
@@ -1478,23 +1530,6 @@
             );
         }
 
-        // --- Grade Management ---
-
-        /**
-         * Populates the student and subject dropdowns in the grade form.
-         * This function now mainly ensures the searchable dropdowns are initialized.
-         */
-        async function populateStudentAndSubjectDropdowns() {
-            // Ensure allStudents and allSubjects are fetched if not already
-            if (allStudents.length === 0) {
-                allStudents = await fetchData('/students/');
-            }
-            if (allSubjects.length === 0) {
-                allSubjects = await fetchData('/subjects/');
-            }
-            setupGradeFormSearchableDropdowns(); // Re-initialize searchable dropdowns with fresh data
-        }
-
 
         /**
          * Handles grade form submission (add/update).
@@ -1512,12 +1547,12 @@
             };
 
             // Basic validation for searchable dropdowns
-            if (!gradeData.student_id) {
-                showMessageBox('Please select a student.', true);
+            if (isNaN(gradeData.student_id)) {
+                showMessageBox('Please select a student from the suggestions.', true);
                 return;
             }
-            if (!gradeData.subject_id) {
-                showMessageBox('Please select a subject.', true);
+            if (isNaN(gradeData.subject_id)) {
+                showMessageBox('Please select a subject from the suggestions.', true);
                 return;
             }
 
@@ -1558,14 +1593,12 @@
                     }
                 }
 
-                // Ensure searchable dropdowns are set up before populating
-                // The setupGradeFormSearchableDropdowns is called in loadGradesAndSummary, so it should be ready
-                // but we might need to re-call populateStudentAndSubjectDropdowns if this is called directly
-                await populateStudentAndSubjectDropdowns(); // Ensure latest data and dropdowns are ready
+                // Ensure searchable dropdowns are populated with latest data before setting selected values
+                await populateGradeFormDropdowns();
 
                 document.getElementById('gradeId').value = grade.id;
 
-                // Set values for searchable dropdowns
+                // Set values for searchable dropdowns using the new setValue method
                 document.getElementById('grade_student_search_input').setValue(grade.student.id, grade.student.full_name);
                 document.getElementById('grade_subject_search_input').setValue(grade.subject.id, `${grade.subject.name} (${grade.subject.code})`);
 
@@ -1588,7 +1621,14 @@
             document.getElementById('grade_subject_search_input').clearValue();
             // Reset regular dropdown
             document.getElementById('grade_type').value = '';
+
+            // Also clear filter dropdowns (using their new clearValue method)
+            document.getElementById('filter_student_search_input').clearValue();
+            document.getElementById('filter_subject_search_input').clearValue();
+            document.getElementById('filter_grade_type').value = ''; // Regular select
+
             showMessageBox('Grade form cleared.');
+            filterGradesTable(); // Re-apply filters to show all grades
         }
 
         /**
@@ -1755,7 +1795,6 @@
             loadStudents().then(() => {
                 loadSubjects().then(() => {
                     loadGradesAndSummary(); // This will handle filters and summary updates
-                    // populateStudentAndSubjectDropdowns is now called within loadGradesAndSummary for setup
                 });
             });
         };
