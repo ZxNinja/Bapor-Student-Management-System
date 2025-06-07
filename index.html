@@ -385,6 +385,39 @@
         .count-failed {
             color: #ef4444; /* Red 500 */
         }
+
+        /* Styles for custom searchable dropdown */
+        .searchable-dropdown-container {
+            position: relative;
+        }
+        .searchable-dropdown-list {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none; /* Hidden by default */
+        }
+        .searchable-dropdown-list.active {
+            display: block; /* Shown when active */
+        }
+        .searchable-dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.2s;
+        }
+        .searchable-dropdown-item:hover {
+            background-color: #e0e7ff; /* Indigo 100 */
+        }
+        .searchable-dropdown-item.selected {
+            background-color: #c7d2fe; /* Indigo 200 */
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -523,17 +556,6 @@
                         <!-- Students will be loaded here by JavaScript -->
                     </select>
                 </div>
-                <div class="grades-summary-section-card">
-                    <h5 id="displayedAverageTitle">Overall Average Grade</h5>
-                    <p>
-                        <span id="allGradesAverage">N/A</span>
-                        <span id="passFailStatus" class="ml-2 font-bold"></span>
-                    </p>
-                </div>
-            </div>
-
-            <!-- New: Pass/Fail Counts Summary Card (Replacing previous overall average card) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="pass-fail-summary-card">
                     <h5>Student Pass/Fail Summary (Overall Average)</h5>
                     <div class="flex justify-around items-center mt-4">
@@ -548,24 +570,56 @@
                     </div>
                 </div>
             </div>
+            <!-- Dynamic Average Card (Moved to left) -->
+            <div class="grades-summary-section-card mb-8">
+                <h5 id="displayedAverageTitle">Overall Average Grade</h5>
+                <p>
+                    <span id="allGradesAverage">N/A</span>
+                    <span id="passFailStatus" class="ml-2 font-bold"></span>
+                </p>
+            </div>
+
+
+            <!-- New: Filters for Grades Table -->
+            <div class="bg-gray-100 p-6 rounded-xl shadow-inner mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="filter_student_name" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Student</label>
+                    <input type="text" id="filter_student_name" class="input-field" placeholder="Enter student name" onkeyup="filterGradesTable()">
+                </div>
+                <div>
+                    <label for="filter_subject_name" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Subject</label>
+                    <input type="text" id="filter_subject_name" class="input-field" placeholder="Enter subject name" onkeyup="filterGradesTable()">
+                </div>
+                <div>
+                    <label for="filter_grade_type" class="block text-sm font-semibold text-gray-800 mb-2">Filter by Grade Type</label>
+                    <select id="filter_grade_type" class="input-field" onchange="filterGradesTable()">
+                        <option value="">All Types</option>
+                        <option value="activity">Activity</option>
+                        <option value="quiz">Quiz</option>
+                        <option value="exam">Exam</option>
+                    </select>
+                </div>
+            </div>
 
 
             <!-- Add/Edit Grade Form -->
             <form id="gradeForm" class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <input type="hidden" id="gradeId" value="">
                 <div>
-                    <label for="grade_student" class="block text-sm font-semibold text-gray-800 mb-2">Student</label>
-                    <select id="grade_student" class="input-field" required>
-                        <option value="">Select Student</option>
-                        <!-- Students will be loaded here by JavaScript -->
-                    </select>
+                    <label for="grade_student_search_input" class="block text-sm font-semibold text-gray-800 mb-2">Student</label>
+                    <div class="searchable-dropdown-container">
+                        <input type="text" id="grade_student_search_input" class="input-field" placeholder="Search student name" required autocomplete="off">
+                        <input type="hidden" id="grade_student_id" name="student_id">
+                        <div id="grade_student_suggestions" class="searchable-dropdown-list"></div>
+                    </div>
                 </div>
                 <div>
-                    <label for="grade_subject" class="block text-sm font-semibold text-gray-800 mb-2">Subject</label>
-                    <select id="grade_subject" class="input-field" required>
-                        <option value="">Select Subject</option>
-                        <!-- Subjects will be loaded here by JavaScript -->
-                    </select>
+                    <label for="grade_subject_search_input" class="block text-sm font-semibold text-gray-800 mb-2">Subject</label>
+                    <div class="searchable-dropdown-container">
+                        <input type="text" id="grade_subject_search_input" class="input-field" placeholder="Search subject name" required autocomplete="off">
+                        <input type="hidden" id="grade_subject_id" name="subject_id">
+                        <div id="grade_subject_suggestions" class="searchable-dropdown-list"></div>
+                    </div>
                 </div>
                 <div>
                     <label for="grade_type" class="block text-sm font-semibold text-gray-800 mb-2">Grade Type</label>
@@ -686,6 +740,7 @@
 
         // Global variables to store fetched data
         let allStudents = [];
+        let allSubjects = []; // Added global storage for subjects
         let allGrades = [];
         let currentStudentDetailId = null; // To keep track of which student's details are open
 
@@ -843,7 +898,7 @@
                 loadSubjects();
             } else if (sectionId === 'grades') {
                 loadGradesAndSummary(); // Combined function to load grades and update summary
-                populateStudentAndSubjectDropdowns(); // Ensure dropdowns are updated for grades
+                // No need to call populateStudentAndSubjectDropdowns here, it's called by loadGradesAndSummary now
             }
         }
 
@@ -1012,15 +1067,15 @@
         async function loadSubjects() {
             const subjectList = document.getElementById('subjectList');
             subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">Loading subjects...</td></tr>`;
-            const subjects = await fetchData('/subjects/');
+            allSubjects = await fetchData('/subjects/'); // Store subjects globally
             subjectList.innerHTML = ''; // Clear loading message
 
-            if (subjects.length === 0) {
+            if (allSubjects.length === 0) {
                 subjectList.innerHTML = `<tr><td colspan="4" class="text-center py-6 table-cell text-gray-500">No subjects found. Add one above!</td></tr>`;
                 return;
             }
 
-            subjects.forEach(subject => {
+            allSubjects.forEach(subject => {
                 const row = document.createElement('tr');
                 row.className = 'table-row opacity-0 translate-y-4'; // Initial state for animation
                 row.innerHTML = `
@@ -1067,7 +1122,7 @@
                 loadSubjects();
                 // Re-populate dropdowns if subject data changes
                 if (document.getElementById('grades').classList.contains('active')) {
-                    populateStudentAndSubjectDropdowns();
+                    populateStudentAndSubjectDropdowns(); // Update grade form dropdowns
                     loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
                 }
             } catch (error) {
@@ -1080,7 +1135,7 @@
          * @param {number} id - The ID of the subject to edit.
          */
         async function editSubject(id) {
-            const subject = await fetchData(`/subjects/${id}/`);
+            const subject = allSubjects.find(s => s.id === id); // Use global allSubjects
             if (subject) {
                 document.getElementById('subjectId').value = subject.id;
                 document.getElementById('subject_name').value = subject.name;
@@ -1110,7 +1165,7 @@
                 loadSubjects();
                 // Re-populate dropdowns if subject data changes
                 if (document.getElementById('grades').classList.contains('active')) {
-                    populateStudentAndSubjectDropdowns();
+                    populateStudentAndSubjectDropdowns(); // Update grade form dropdowns
                     loadGradesAndSummary(); // Refresh summary if subject data impacts grades display
                 }
             } catch (error) {
@@ -1118,11 +1173,11 @@
             }
         }
 
-        // --- Grade Management (Combined Load and Summary) ---
+        // --- Grades Section Display Logic ---
 
         /**
-         * Loads and displays all grades from the API, and updates overall grade summary.
-         * This function is also responsible for populating the student filter dropdown.
+         * Loads and displays all grades from the API, updates overall grade summary,
+         * and populates the student filter dropdown and pass/fail counts.
          */
         async function loadGradesAndSummary() {
             const gradeList = document.getElementById('gradeList');
@@ -1130,34 +1185,33 @@
             const studentFilterDropdown = document.getElementById('studentGradeFilter');
             const displayedAverageTitle = document.getElementById('displayedAverageTitle');
             const passFailStatusElement = document.getElementById('passFailStatus');
-            const passedStudentsCountElement = document.getElementById('passedStudentsCount'); // New
-            const failedStudentsCountElement = document.getElementById('failedStudentsCount'); // New
+            const passedStudentsCountElement = document.getElementById('passedStudentsCount');
+            const failedStudentsCountElement = document.getElementById('failedStudentsCount');
 
             // Show loading messages for summary cards and dropdown
             allGradesAverageElement.textContent = 'Calculating...';
             passFailStatusElement.textContent = '';
-            displayedAverageTitle.textContent = 'Overall Average of All Grades';
+            displayedAverageTitle.textContent = 'Overall Average Grade';
             passedStudentsCountElement.textContent = '...';
             failedStudentsCountElement.textContent = '...';
             studentFilterDropdown.innerHTML = '<option value="all">Loading Students...</option>';
             gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">Loading grades...</td></tr>`;
 
+            // Fetch and store all data
             allStudents = await fetchData('/students/');
+            allSubjects = await fetchData('/subjects/'); // Ensure subjects are also globally available
             allGrades = await fetchData('/grades/');
-            gradeList.innerHTML = ''; // Clear loading message
 
-            // First, populate the student filter dropdown with all students
+            // Populate the student filter dropdown in Grades section
             studentFilterDropdown.innerHTML = '<option value="all">All Students (Overall Average)</option>';
             allStudents.sort((a, b) => a.full_name.localeCompare(b.full_name));
-
             allStudents.forEach(student => {
                 const option = document.createElement('option');
                 option.value = student.id;
                 option.textContent = student.full_name;
                 studentFilterDropdown.appendChild(option);
             });
-            studentFilterDropdown.onchange = () => updateGradesSummary(studentFilterDropdown.value);
-
+            studentFilterDropdown.onchange = () => updateGradesSummary(studentFilterDropdown.value); // Re-attach event listener
 
             if (allGrades.length === 0) {
                 gradeList.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No grades found. Add one above!</td></tr>`;
@@ -1166,38 +1220,20 @@
                 passedStudentsCountElement.textContent = '0';
                 failedStudentsCountElement.textContent = '0';
                 studentFilterDropdown.innerHTML = '<option value="all">No grades to display</option>';
+                // If no grades, also clear the search inputs in grade form
+                document.getElementById('grade_student_search_input').value = '';
+                document.getElementById('grade_student_id').value = '';
+                document.getElementById('grade_subject_search_input').value = '';
+                document.getElementById('grade_subject_id').value = '';
+                document.getElementById('grade_type').value = '';
                 return;
             }
-
-            // Populate grade list table
-            allGrades.forEach(grade => {
-                const row = document.createElement('tr');
-                row.className = 'table-row opacity-0 translate-y-4';
-                row.innerHTML = `
-                    <td class="table-cell">${grade.student.full_name || 'N/A'}</td>
-                    <td class="table-cell">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
-                    <td class="table-cell">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
-                    <td class="table-cell font-semibold">${grade.score}</td>
-                    <td class="table-cell">${new Date(grade.date_recorded).toLocaleDateString()}</td>
-                    <td class="table-cell text-right">
-                        <div class="table-actions">
-                            <button class="btn btn-secondary text-sm" onclick="editGrade(${grade.id})">Edit</button>
-                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
-                        </div>
-                    </td>
-                `;
-                gradeList.appendChild(row);
-                setTimeout(() => {
-                    row.classList.remove('opacity-0', 'translate-y-4');
-                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
-                }, 50);
-            });
 
             // Calculate and display overall pass/fail counts for all students
             let passedStudents = 0;
             let failedStudents = 0;
+            const studentOverallAverages = {};
 
-            const studentOverallAverages = {}; // { studentId: average }
             allStudents.forEach(student => {
                 const studentGrades = allGrades.filter(grade => grade.student.id === student.id);
                 if (studentGrades.length > 0) {
@@ -1218,6 +1254,9 @@
 
             // Trigger initial update of the specific student average card (defaults to 'all')
             updateGradesSummary(studentFilterDropdown.value);
+
+            // Apply filters and populate the main grades table
+            filterGradesTable();
         }
 
         /**
@@ -1275,42 +1314,187 @@
             }
         }
 
+        /**
+         * Filters the grades table based on input filter values.
+         */
+        function filterGradesTable() {
+            const gradeListBody = document.getElementById('gradeList');
+            gradeListBody.innerHTML = ''; // Clear current table
+
+            const filterStudentName = document.getElementById('filter_student_name').value.toLowerCase();
+            const filterSubjectName = document.getElementById('filter_subject_name').value.toLowerCase();
+            const filterGradeType = document.getElementById('filter_grade_type').value.toLowerCase();
+
+            const filteredGrades = allGrades.filter(grade => {
+                const studentMatch = (grade.student.full_name || '').toLowerCase().includes(filterStudentName);
+                const subjectMatch = (grade.subject.name || '').toLowerCase().includes(filterSubjectName);
+                const typeMatch = filterGradeType === '' || (grade.grade_type || '').toLowerCase() === filterGradeType;
+
+                return studentMatch && subjectMatch && typeMatch;
+            });
+
+            if (filteredGrades.length === 0) {
+                gradeListBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 table-cell text-gray-500">No matching grades found.</td></tr>`;
+                return;
+            }
+
+            filteredGrades.forEach(grade => {
+                const row = document.createElement('tr');
+                row.className = 'table-row opacity-0 translate-y-4';
+                row.innerHTML = `
+                    <td class="table-cell">${grade.student.full_name || 'N/A'}</td>
+                    <td class="table-cell">${grade.subject.name || 'N/A'} (${grade.subject.code || 'N/A'})</td>
+                    <td class="table-cell">${grade.grade_type.charAt(0).toUpperCase() + grade.grade_type.slice(1)}</td>
+                    <td class="table-cell font-semibold">${grade.score}</td>
+                    <td class="table-cell">${new Date(grade.date_recorded).toLocaleDateString()}</td>
+                    <td class="table-cell text-right">
+                        <div class="table-actions">
+                            <button class="btn btn-secondary text-sm" onclick="editGrade(${grade.id})">Edit</button>
+                            <button class="btn btn-danger text-sm" onclick="openModal(() => deleteGrade(${grade.id}))">Delete</button>
+                        </div>
+                    </td>
+                `;
+                gradeListBody.appendChild(row);
+                setTimeout(() => {
+                    row.classList.remove('opacity-0', 'translate-y-4');
+                    row.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                }, 50);
+            });
+        }
+
+
+        // --- Searchable Dropdown Helper Function ---
+
+        /**
+         * Sets up a searchable dropdown for an input field.
+         * @param {string} inputId - ID of the text input element.
+         * @param {string} hiddenId - ID of the hidden input to store the selected value/ID.
+         * @param {string} suggestionsId - ID of the div to display suggestions.
+         * @param {Array} data - Array of objects (or strings for simple types) for suggestions.
+         * @param {Function} displayFormatter - Function to format data item for display (e.g., `item => item.name`).
+         * @param {Function} valueExtractor - Function to extract the actual value/ID to store (e.g., `item => item.id`).
+         */
+        function setupSearchableDropdown(inputId, hiddenId, suggestionsId, data, displayFormatter, valueExtractor) {
+            const input = document.getElementById(inputId);
+            const hiddenInput = document.getElementById(hiddenId);
+            const suggestionsContainer = document.getElementById(suggestionsId);
+
+            let currentSearchTerm = '';
+            let selectedValue = null; // To keep track of selected item's value (ID)
+            let selectedDisplay = ''; // To keep track of selected item's display text
+
+            // Close all dropdowns if click outside
+            document.addEventListener('click', (e) => {
+                if (!input.parentNode.contains(e.target)) {
+                    suggestionsContainer.classList.remove('active');
+                }
+            });
+
+            input.addEventListener('focus', () => {
+                populateSuggestions(''); // Show all on focus
+                suggestionsContainer.classList.add('active');
+            });
+
+            input.addEventListener('input', () => {
+                currentSearchTerm = input.value.toLowerCase();
+                populateSuggestions(currentSearchTerm);
+                suggestionsContainer.classList.add('active');
+            });
+
+            function populateSuggestions(searchTerm) {
+                suggestionsContainer.innerHTML = '';
+                const filteredData = data.filter(item =>
+                    displayFormatter(item).toLowerCase().includes(searchTerm)
+                );
+
+                if (filteredData.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'searchable-dropdown-item text-gray-500 italic';
+                    noResults.textContent = 'No results found.';
+                    suggestionsContainer.appendChild(noResults);
+                } else {
+                    filteredData.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'searchable-dropdown-item';
+                        div.textContent = displayFormatter(item);
+                        div.dataset.value = valueExtractor(item); // Store the actual ID/value
+
+                        // Mark as selected if it matches the current selection
+                        if (div.dataset.value == selectedValue) { // Use == for number/string comparison
+                            div.classList.add('selected');
+                        }
+
+                        div.addEventListener('click', () => {
+                            input.value = displayFormatter(item);
+                            hiddenInput.value = valueExtractor(item);
+                            selectedValue = valueExtractor(item);
+                            selectedDisplay = displayFormatter(item);
+                            suggestionsContainer.classList.remove('active');
+                        });
+                        suggestionsContainer.appendChild(div);
+                    });
+                }
+            }
+
+            // Function to set the value programmatically (for editing)
+            input.setValue = (valueToSet, displayToSet) => {
+                hiddenInput.value = valueToSet;
+                input.value = displayToSet;
+                selectedValue = valueToSet;
+                selectedDisplay = displayToSet;
+            };
+
+            // Function to clear the value programmatically
+            input.clearValue = () => {
+                hiddenInput.value = '';
+                input.value = '';
+                selectedValue = null;
+                selectedDisplay = '';
+            };
+        }
+
+
+        // --- Grade Form Dropdown Initialization ---
+        // This will be called after allStudents and allSubjects are loaded
+        function setupGradeFormSearchableDropdowns() {
+            // Student Dropdown
+            setupSearchableDropdown(
+                'grade_student_search_input',
+                'grade_student_id',
+                'grade_student_suggestions',
+                allStudents,
+                item => item.full_name,
+                item => item.id
+            );
+
+            // Subject Dropdown
+            setupSearchableDropdown(
+                'grade_subject_search_input',
+                'grade_subject_id',
+                'grade_subject_suggestions',
+                allSubjects,
+                item => `${item.name} (${item.code})`,
+                item => item.id
+            );
+        }
+
+        // --- Grade Management ---
 
         /**
          * Populates the student and subject dropdowns in the grade form.
+         * This function now mainly ensures the searchable dropdowns are initialized.
          */
         async function populateStudentAndSubjectDropdowns() {
-            const studentSelect = document.getElementById('grade_student');
-            const subjectSelect = document.getElementById('grade_subject');
-
-            // Store current selected values to re-select after repopulating
-            const currentStudentId = studentSelect.value;
-            const currentSubjectId = subjectSelect.value;
-
-            // Clear previous options
-            studentSelect.innerHTML = '<option value="">Select Student</option>';
-            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-
-            // Use the globally available allStudents
-            allStudents.forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.id;
-                option.textContent = student.full_name;
-                studentSelect.appendChild(option);
-            });
-
-            const subjects = await fetchData('/subjects/');
-            subjects.forEach(subject => {
-                const option = document.createElement('option');
-                option.value = subject.id;
-                option.textContent = `${subject.name} (${subject.code})`;
-                subjectSelect.appendChild(option);
-            });
-
-            // Restore previously selected values
-            if (currentStudentId) studentSelect.value = currentStudentId;
-            if (currentSubjectId) subjectSelect.value = currentSubjectId;
+            // Ensure allStudents and allSubjects are fetched if not already
+            if (allStudents.length === 0) {
+                allStudents = await fetchData('/students/');
+            }
+            if (allSubjects.length === 0) {
+                allSubjects = await fetchData('/subjects/');
+            }
+            setupGradeFormSearchableDropdowns(); // Re-initialize searchable dropdowns with fresh data
         }
+
 
         /**
          * Handles grade form submission (add/update).
@@ -1320,12 +1504,23 @@
             event.preventDefault();
             const gradeId = document.getElementById('gradeId').value;
             const gradeData = {
-                student_id: parseInt(document.getElementById('grade_student').value),
-                subject_id: parseInt(document.getElementById('grade_subject').value),
+                student_id: parseInt(document.getElementById('grade_student_id').value), // Get ID from hidden input
+                subject_id: parseInt(document.getElementById('grade_subject_id').value), // Get ID from hidden input
                 grade_type: document.getElementById('grade_type').value,
                 score: parseFloat(document.getElementById('grade_score').value),
                 notes: document.getElementById('grade_notes').value,
             };
+
+            // Basic validation for searchable dropdowns
+            if (!gradeData.student_id) {
+                showMessageBox('Please select a student.', true);
+                return;
+            }
+            if (!gradeData.subject_id) {
+                showMessageBox('Please select a subject.', true);
+                return;
+            }
+
 
             try {
                 if (gradeId) {
@@ -1357,24 +1552,43 @@
                 if (fromDetailModal) {
                     closeStudentDetailModal(); // Close the modal
                     // Find the 'Grades' tab button and simulate a click to switch tabs
-                    const gradesTabButton = document.querySelector('nav .tab-button:nth-child(3)'); // Assuming Grades is the 3rd tab
+                    const gradesTabButton = document.querySelector('nav .tab-button[onclick*="grades"]'); // More robust selector
                     if (gradesTabButton) {
                         gradesTabButton.click();
                     }
                 }
 
-                // Ensure dropdowns are populated BEFORE setting selected values
-                await populateStudentAndSubjectDropdowns();
+                // Ensure searchable dropdowns are set up before populating
+                // The setupGradeFormSearchableDropdowns is called in loadGradesAndSummary, so it should be ready
+                // but we might need to re-call populateStudentAndSubjectDropdowns if this is called directly
+                await populateStudentAndSubjectDropdowns(); // Ensure latest data and dropdowns are ready
 
                 document.getElementById('gradeId').value = grade.id;
-                document.getElementById('grade_student').value = grade.student.id;
-                document.getElementById('grade_subject').value = grade.subject.id;
+
+                // Set values for searchable dropdowns
+                document.getElementById('grade_student_search_input').setValue(grade.student.id, grade.student.full_name);
+                document.getElementById('grade_subject_search_input').setValue(grade.subject.id, `${grade.subject.name} (${grade.subject.code})`);
+
                 document.getElementById('grade_type').value = grade.grade_type;
                 document.getElementById('grade_score').value = grade.score;
                 document.getElementById('grade_notes').value = grade.notes;
                 showMessageBox(`Editing grade for ${grade.student.full_name} in ${grade.subject.name}`);
-                document.getElementById('grade_student').focus(); // Bring focus to the form
+                document.getElementById('grade_student_search_input').focus(); // Bring focus to the form
             }
+        }
+
+        /**
+         * Clears the grade form, including searchable dropdowns.
+         */
+        function clearGradeForm() {
+            document.getElementById('gradeId').value = '';
+            document.getElementById('gradeForm').reset();
+            // Clear searchable dropdowns using their new clearValue method
+            document.getElementById('grade_student_search_input').clearValue();
+            document.getElementById('grade_subject_search_input').clearValue();
+            // Reset regular dropdown
+            document.getElementById('grade_type').value = '';
+            showMessageBox('Grade form cleared.');
         }
 
         /**
@@ -1536,9 +1750,14 @@
 
         // --- Initial Load ---
         window.onload = () => {
-            loadStudents(); // Load students first as they are needed for dropdowns
-            loadGradesAndSummary(); // Then load grades and update summary
-            populateStudentAndSubjectDropdowns(); // Also load these for the Grades tab's dropdowns
+            // Load all data initially to populate all sections correctly
+            // Order is important: Students and Subjects before Grades
+            loadStudents().then(() => {
+                loadSubjects().then(() => {
+                    loadGradesAndSummary(); // This will handle filters and summary updates
+                    // populateStudentAndSubjectDropdowns is now called within loadGradesAndSummary for setup
+                });
+            });
         };
     </script>
 </body>
